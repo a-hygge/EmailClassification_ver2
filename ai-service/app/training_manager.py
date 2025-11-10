@@ -59,16 +59,20 @@ class TrainingJobManager:
     ) -> None:
         with self._lock:
             if job_id in self._jobs:
+                # Get existing progress to preserve validation metrics when not provided
+                existing_progress = self._jobs[job_id].get('progress') or {}
+
                 progress_data = {
                     'currentEpoch': current_epoch,
                     'totalEpochs': total_epochs,
                     'progress': progress,
                     'currentLoss': current_loss,
                     'currentAccuracy': current_accuracy,
-                    'valLoss': val_loss,
-                    'valAccuracy': val_accuracy
+                    # Preserve previous validation metrics if not provided in this update
+                    'valLoss': val_loss if val_loss is not None else existing_progress.get('valLoss'),
+                    'valAccuracy': val_accuracy if val_accuracy is not None else existing_progress.get('valAccuracy')
                 }
-                
+
                 if current_batch is not None:
                     progress_data['currentBatch'] = current_batch
                 if total_batches is not None:
@@ -79,13 +83,20 @@ class TrainingJobManager:
                     progress_data['currentPrecision'] = current_precision
                 if current_recall is not None:
                     progress_data['currentRecall'] = current_recall
+                # Preserve validation AUC, precision, recall if not provided
                 if val_auc is not None:
                     progress_data['valAuc'] = val_auc
+                elif existing_progress.get('valAuc') is not None:
+                    progress_data['valAuc'] = existing_progress.get('valAuc')
                 if val_precision is not None:
                     progress_data['valPrecision'] = val_precision
+                elif existing_progress.get('valPrecision') is not None:
+                    progress_data['valPrecision'] = existing_progress.get('valPrecision')
                 if val_recall is not None:
                     progress_data['valRecall'] = val_recall
-                
+                elif existing_progress.get('valRecall') is not None:
+                    progress_data['valRecall'] = existing_progress.get('valRecall')
+
                 self._jobs[job_id]['progress'] = progress_data
                 self._jobs[job_id]['updatedAt'] = datetime.now().isoformat()
                 
