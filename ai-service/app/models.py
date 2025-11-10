@@ -205,6 +205,11 @@ class TrainingStatusResponse(BaseModel):
     )
     
     error: Optional[str] = Field(None, description="Error message if failed")
+    
+    logs: Optional[List[Dict[str, str]]] = Field(
+        None,
+        description="Training logs with timestamp and message"
+    )
 
     class Config:
         json_schema_extra = {
@@ -219,7 +224,11 @@ class TrainingStatusResponse(BaseModel):
                     "currentAccuracy": 0.85,
                     "valLoss": 0.6,
                     "valAccuracy": 0.82
-                }
+                },
+                "logs": [
+                    {"timestamp": "2024-01-01T10:00:00", "message": "Starting training..."},
+                    {"timestamp": "2024-01-01T10:00:01", "message": "10/152 - auc: 0.9754..."}
+                ]
             }
         }
 class TrainingMetrics(BaseModel):

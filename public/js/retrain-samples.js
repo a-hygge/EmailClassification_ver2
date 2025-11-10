@@ -1,4 +1,5 @@
 let allSamples = [];
+let filteredSamples = []; // For filtered/searched results
 let selectedSampleIds = new Set();
 let allLabels = [];
 let allModels = [];
@@ -142,8 +143,9 @@ async function loadSamples() {
     
     if (data.success) {
       allSamples = data.samples;
+      filteredSamples = [...allSamples]; // Initialize filtered with all samples
       allLabels = data.labels;
-      pagination.totalItems = allSamples.length;
+      pagination.totalItems = filteredSamples.length;
       renderCurrentPage();
       populateLabelFilter(data.labels);
       updatePaginationControls();
@@ -192,6 +194,20 @@ function renderSamples(samples) {
     const row = document.createElement('tr');
     const isChecked = selectedSampleIds.has(sample.id);
     
+    // Generate labels HTML
+    let labelsHtml = '';
+    if (sample.labels && sample.labels.length > 0) {
+      const labelColors = ['primary', 'success', 'info', 'warning', 'danger'];
+      labelsHtml = sample.labels.map((label, idx) => {
+        const colorClass = labelColors[label.id % 5];
+        return `<span class="badge bg-${colorClass} me-1 mb-1">
+          <i class="fas fa-tag me-1"></i>${escapeHtml(label.name)}
+        </span>`;
+      }).join('');
+    } else {
+      labelsHtml = '<span class="badge bg-secondary"><i class="fas fa-question me-1"></i>Chưa phân loại</span>';
+    }
+    
     row.innerHTML = `
       <td>
         <input type="checkbox" class="form-check-input sample-checkbox" 
@@ -203,9 +219,7 @@ function renderSamples(samples) {
         <strong>${escapeHtml(sample.title)}</strong><br>
         <small class="text-muted">${escapeHtml(sample.content)}</small>
       </td>
-      <td>
-        <span class="badge bg-primary">${escapeHtml(sample.labelName)}</span>
-      </td>
+      <td>${labelsHtml}</td>
     `;
     tbody.appendChild(row);
   });
@@ -227,7 +241,8 @@ function handleCheckboxChange(event) {
   updateSelectAllCheckboxState();
 }
 function selectAllSamples() {
-  allSamples.forEach(sample => {
+  // Select all samples in current filter
+  filteredSamples.forEach(sample => {
     selectedSampleIds.add(sample.id);
   });
   const checkboxes = document.querySelectorAll('.sample-checkbox');
@@ -261,9 +276,14 @@ function updateSelectedCount() {
 function updateSelectAllCheckboxState() {
   const selectAllCheckbox = document.getElementById('selectAllCheckbox');
   if (!selectAllCheckbox) return;
-  const allSelected = selectedSampleIds.size === allSamples.length;
-  selectAllCheckbox.checked = allSelected;
-  selectAllCheckbox.indeterminate = selectedSampleIds.size > 0 && selectedSampleIds.size < allSamples.length;
+  
+  // Check if all filtered samples are selected
+  const allFilteredSelected = filteredSamples.length > 0 && 
+    filteredSamples.every(s => selectedSampleIds.has(s.id));
+  const someFilteredSelected = filteredSamples.some(s => selectedSampleIds.has(s.id));
+  
+  selectAllCheckbox.checked = allFilteredSelected;
+  selectAllCheckbox.indeterminate = someFilteredSelected && !allFilteredSelected;
 }
 function populateLabelFilter(labels) {
   const filterSelect = document.getElementById('labelFilter');
@@ -281,27 +301,67 @@ function populateLabelFilter(labels) {
   });
 }
 function filterByLabel(labelId) {
+  pagination.currentPage = 1; // Reset to first page
+  
   if (labelId === 'all') {
-    renderSamples(allSamples);
+    filteredSamples = [...allSamples];
   } else {
-    const filtered = allSamples.filter(s => s.tblLabelId === parseInt(labelId));
-    renderSamples(filtered);
+    filteredSamples = allSamples.filter(s => 
+      s.labels && s.labels.some(label => label.id === parseInt(labelId))
+    );
   }
+  
+  pagination.totalItems = filteredSamples.length;
+  renderCurrentPage();
+  updatePaginationControls();
 }
 
 function searchSamples(query) {
+  pagination.currentPage = 1; // Reset to first page
+  
+  if (!query || query.trim() === '') {
+    // If search is empty, apply current label filter
+    const labelFilter = document.getElementById('labelFilter');
+    if (labelFilter) {
+      filterByLabel(labelFilter.value);
+    } else {
+      filteredSamples = [...allSamples];
+      pagination.totalItems = filteredSamples.length;
+      renderCurrentPage();
+      updatePaginationControls();
+    }
+    return;
+  }
+  
   const lowerQuery = query.toLowerCase();
-  const filtered = allSamples.filter(s => 
+  
+  // Get current label filter
+  const labelFilter = document.getElementById('labelFilter');
+  const labelId = labelFilter ? labelFilter.value : 'all';
+  
+  // Start with label-filtered samples
+  let baseArray = allSamples;
+  if (labelId !== 'all') {
+    baseArray = allSamples.filter(s => 
+      s.labels && s.labels.some(label => label.id === parseInt(labelId))
+    );
+  }
+  
+  // Apply search on label-filtered results
+  filteredSamples = baseArray.filter(s => 
     s.title.toLowerCase().includes(lowerQuery) ||
     s.content.toLowerCase().includes(lowerQuery)
   );
-  renderSamples(filtered);
+  
+  pagination.totalItems = filteredSamples.length;
+  renderCurrentPage();
+  updatePaginationControls();
 }
 
 function renderCurrentPage() {
   const startIdx = (pagination.currentPage - 1) * pagination.itemsPerPage;
   const endIdx = startIdx + pagination.itemsPerPage;
-  const currentSamples = allSamples.slice(startIdx, endIdx);
+  const currentSamples = filteredSamples.slice(startIdx, endIdx);
   
   renderSamples(currentSamples);
   updatePageInfo();

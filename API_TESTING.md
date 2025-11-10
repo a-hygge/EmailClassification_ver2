@@ -181,3 +181,23 @@ curl -X POST http://localhost:3000/api/emails/receive \
 - Emails are stored in the database with their classification labels
 - The endpoint returns the email ID and classification results
 - Make sure the server is running on port 3000 before testing
+
+---
+
+## Postman
+
+You can import the provided Postman collection to run the same requests from the cURL examples.
+
+- File: `postman_collection.json` (in the repository root)
+
+Import steps (Postman app):
+
+1. Open Postman.
+2. Click "Import" (top-left) → "File" and select `postman_collection.json` from this repository.
+3. The collection "Email Receive API" will appear in your Collections panel. Expand it and run any request.
+4. Ensure your local server is running at `http://localhost:3000` before sending requests.
+
+Notes:
+
+- The requests include the header `Content-Type: application/json` and example JSON bodies matching the cURL samples.
+- You can edit request bodies or add environment variables if you run the server on a different host/port.

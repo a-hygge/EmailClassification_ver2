@@ -3,6 +3,7 @@ import modelRetrainService from "../services/modelRetrainService.js";
 import emailDao from "../dao/emailDao.js";
 import labelDao from "../dao/labelDao.js";
 import modelDao from "../dao/modelDao.js";
+import datasetDao from "../dao/datasetDao.js";
 
 class RetrainController {
   async showRetrainPage(req, res) {
@@ -70,8 +71,10 @@ class RetrainController {
         id: email.id,
         title: email.title,
         content: email.content.substring(0, 100) + "...", 
-        tblLabelId: email.tblLabelId,
-        labelName: email.label?.name || "Unknown",
+        labels: email.labels ? email.labels.map(l => ({
+          id: l.id,
+          name: l.name
+        })) : [],
       }));
 
       res.json({
@@ -113,11 +116,39 @@ class RetrainController {
             f1Score: m.f1Score,
             isActive: m.isActive,
             created_at: m.created_at,
+            dataset: m.dataset ? {
+              id: m.dataset.id,
+              name: m.dataset.name,
+              path: m.dataset.path,
+              description: m.dataset.description,
+              quantity: m.dataset.quantity
+            } : null
           };
         }),
       });
     } catch (error) {
       console.error("Error getting models:", error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getDatasets(req, res) {
+    try {
+      const datasets = await datasetDao.findAll();
+
+      res.json({
+        success: true,
+        datasets: datasets.map((d) => ({
+          id: d.id,
+          name: d.name,
+          path: d.path,
+          description: d.description,
+          quantity: d.quantity,
+          created_at: d.created_at
+        })),
+      });
+    } catch (error) {
+      console.error("Error getting datasets:", error);
       res.status(500).json({ success: false, error: error.message });
     }
   }
@@ -282,6 +313,7 @@ export const {
   showResultsPage,
   getSamples,
   getModels,
+  getDatasets,
   startRetraining,
   getTrainingStatus,
   getTrainingResults,

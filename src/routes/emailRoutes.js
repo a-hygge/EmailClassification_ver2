@@ -1,6 +1,10 @@
 import { Router } from 'express';
+import { requireAuth } from '../middleware/auth.js';
 const router = Router();
 import { index, getByLabel, show, deleteEmail, getImportantEmails } from '../controllers/emailController.js';
+
+// Áp dụng middleware authentication cho tất cả routes
+router.use(requireAuth);
 
 // GET /emails - Danh sách tất cả email
 router.get('/', index);

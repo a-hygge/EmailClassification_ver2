@@ -338,6 +338,9 @@ function startPollingStatus(jobId) {
   checkTrainingStatus(jobId);
 }
 
+let epochHistory = [];
+let currentEpochRow = null;
+
 async function checkTrainingStatus(jobId) {
   try {
     const response = await fetch(`/retrain/status/${jobId}`, {
@@ -345,22 +348,186 @@ async function checkTrainingStatus(jobId) {
     });
     const status = await response.json();
 
+    console.log('📊 Status received:', status);
+
     if (status.success) {
-      updateProgressBar(status.progress, status.currentEpoch, status.totalEpochs);
+      console.log('📈 Progress data:', status.progress);
+      updateProgressTable(status.progress);
+      
       if (status.status === 'completed') {
         clearInterval(pollingInterval);
         pollingInterval = null;
+        updateStatusMessage('Training completed successfully!', 'success');
         await loadTrainingResults(jobId);
       } else if (status.status === 'failed') {
         clearInterval(pollingInterval);
         pollingInterval = null;
-
+        updateStatusMessage('Training failed!', 'danger');
         alert('Huấn luyện thất bại. Vui lòng thử lại.');
         window.location.href = '/retrain';
+      } else {
+        const currentEpoch = status.progress?.currentEpoch || 0;
+        const totalEpochs = status.progress?.totalEpochs || 0;
+        const currentBatch = status.progress?.currentBatch || 0;
+        const totalBatches = status.progress?.totalBatches || 0;
+        
+        if (currentBatch > 0 && totalBatches > 0) {
+          updateStatusMessage(
+            `Training in progress - Epoch ${currentEpoch}/${totalEpochs} (Batch ${currentBatch}/${totalBatches})`,
+            'info'
+          );
+        } else {
+          updateStatusMessage(
+            `Training in progress - Epoch ${currentEpoch}/${totalEpochs}`,
+            'info'
+          );
+        }
       }
     }
   } catch (error) {
     console.error('Error checking training status:', error);
+  }
+}
+
+function updateProgressTable(progress) {
+  console.log('🔄 updateProgressTable called with:', progress);
+  
+  if (!progress) {
+    console.warn('⚠️ No progress data');
+    return;
+  }
+  
+  const tableBody = document.getElementById('trainingProgressTable');
+  if (!tableBody) {
+    console.error('❌ Table body not found');
+    return;
+  }
+  
+  const currentEpoch = progress.currentEpoch;
+  const totalEpochs = progress.totalEpochs;
+  
+  console.log(`📝 Epoch: ${currentEpoch}/${totalEpochs}`);
+  
+  if (!currentEpoch || !totalEpochs) {
+    console.warn('⚠️ Missing epoch data');
+    return;
+  }
+  
+  const hasValMetrics = progress.valLoss !== undefined && progress.valLoss !== null && progress.valLoss > 0;
+  
+  console.log(`✓ Has validation metrics: ${hasValMetrics}`, {
+    valLoss: progress.valLoss,
+    valAccuracy: progress.valAccuracy
+  });
+  
+  if (hasValMetrics) {
+    // Tìm row hiện tại của epoch này
+    let rowToUpdate = tableBody.querySelector(`tr[data-epoch="${currentEpoch}"]`);
+    
+    const trainAccPercent = ((progress.currentAccuracy || 0) * 100).toFixed(2);
+    const valAccPercent = ((progress.valAccuracy || 0) * 100).toFixed(2);
+    
+    if (rowToUpdate) {
+      // Cập nhật row đã tồn tại với validation metrics
+      console.log(`🔄 Updating existing row for Epoch ${currentEpoch} with validation data`);
+      
+      rowToUpdate.className = 'epoch-completed';
+      rowToUpdate.innerHTML = `
+        <td><strong>${currentEpoch} / ${totalEpochs}</strong></td>
+        <td class="${getMetricClass(progress.currentLoss, 'loss')}">${(progress.currentLoss || 0).toFixed(4)}</td>
+        <td class="${getMetricClass(progress.valLoss, 'loss')}">${(progress.valLoss || 0).toFixed(4)}</td>
+        <td class="${getMetricClass(progress.currentAccuracy, 'acc')}">${trainAccPercent}%</td>
+        <td class="${getMetricClass(progress.valAccuracy, 'acc')}">${valAccPercent}%</td>
+      `;
+      
+      console.log(`✅ Epoch ${currentEpoch} updated with Val Loss: ${progress.valLoss}, Val Acc: ${valAccPercent}%`);
+    } else {
+      // Tạo row mới nếu chưa tồn tại (trường hợp đặc biệt)
+      console.log(`➕ Creating new completed row for Epoch ${currentEpoch}`);
+      
+      const row = document.createElement('tr');
+      row.className = 'epoch-completed';
+      row.dataset.epoch = currentEpoch;
+      
+      row.innerHTML = `
+        <td><strong>${currentEpoch} / ${totalEpochs}</strong></td>
+        <td class="${getMetricClass(progress.currentLoss, 'loss')}">${(progress.currentLoss || 0).toFixed(4)}</td>
+        <td class="${getMetricClass(progress.valLoss, 'loss')}">${(progress.valLoss || 0).toFixed(4)}</td>
+        <td class="${getMetricClass(progress.currentAccuracy, 'acc')}">${trainAccPercent}%</td>
+        <td class="${getMetricClass(progress.valAccuracy, 'acc')}">${valAccPercent}%</td>
+      `;
+      
+      tableBody.appendChild(row);
+      
+      const table = tableBody.closest('.table-responsive');
+      if (table) {
+        setTimeout(() => {
+          table.scrollTop = table.scrollHeight;
+        }, 100);
+      }
+    }
+    
+    // Lưu vào history nếu chưa có
+    const existingEpoch = epochHistory.find(e => e.epoch === currentEpoch);
+    if (!existingEpoch) {
+      epochHistory.push({
+        epoch: currentEpoch,
+        trainLoss: progress.currentLoss,
+        valLoss: progress.valLoss,
+        trainAcc: progress.currentAccuracy,
+        valAcc: progress.valAccuracy
+      });
+    }
+  } else {
+    let rowToUpdate = tableBody.querySelector(`tr[data-epoch="${currentEpoch}"]`);
+    
+    if (!rowToUpdate) {
+      const firstLoad = tableBody.querySelector('td[colspan="5"]');
+      if (firstLoad) {
+        tableBody.innerHTML = '';
+      }
+      
+      rowToUpdate = document.createElement('tr');
+      rowToUpdate.dataset.epoch = currentEpoch;
+      rowToUpdate.className = 'training-in-progress';
+      tableBody.appendChild(rowToUpdate);
+    }
+    
+    const trainAccPercent = ((progress.currentAccuracy || 0) * 100).toFixed(2);
+    
+    rowToUpdate.innerHTML = `
+      <td><strong>${currentEpoch} / ${totalEpochs}</strong></td>
+      <td class="${getMetricClass(progress.currentLoss, 'loss')}">${(progress.currentLoss || 0).toFixed(4)}</td>
+      <td class="text-muted"><i class="fas fa-spinner fa-spin"></i></td>
+      <td class="${getMetricClass(progress.currentAccuracy, 'acc')}">${trainAccPercent}%</td>
+      <td class="text-muted"><i class="fas fa-spinner fa-spin"></i></td>
+    `;
+  }
+}
+
+function getMetricClass(value, type) {
+  if (value === undefined || value === null) return '';
+  
+  if (type === 'loss') {
+    if (value < 0.3) return 'metric-good';
+    if (value < 1.0) return 'metric-warning';
+    return 'metric-danger';
+  } else if (type === 'acc') {
+    if (value > 0.85) return 'metric-good';
+    if (value > 0.70) return 'metric-warning';
+    return 'metric-danger';
+  }
+  
+  return '';
+}
+
+function updateStatusMessage(message, type) {
+  const alert = document.getElementById('trainingStatusAlert');
+  const messageSpan = document.getElementById('statusMessage');
+  
+  if (alert && messageSpan) {
+    alert.className = `alert alert-${type} d-flex align-items-center mb-4`;
+    messageSpan.textContent = message;
   }
 }
 

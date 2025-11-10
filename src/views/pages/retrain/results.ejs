@@ -64,25 +64,56 @@
             </div>
           </div>
 
-          <div id="trainingLoading" class="text-center py-5">
-            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-              <span class="visually-hidden">Training...</span>
+          <div id="trainingLoading" class="py-4">
+            <div class="text-center mb-4">
+              <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Training...</span>
+              </div>
+              <h5 class="mb-2">Đang huấn luyện mô hình...</h5>
+              <p class="text-muted mb-0">Vui lòng đợi, quá trình này có thể mất vài phút</p>
             </div>
-            <h5 class="mb-2">Đang huấn luyện mô hình...</h5>
-            <p class="text-muted mb-4">Vui lòng đợi, quá trình này có thể mất vài phút</p>
-            
-            <!-- Progress Bar -->
-            <div class="container" style="max-width: 600px;">
-              <div class="progress" style="height: 30px;">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                     id="trainingProgress" role="progressbar" 
-                     style="width: 0%">
-                  <span id="progressText">0%</span>
+
+            <!-- Training Progress Table -->
+            <div class="container" style="max-width: 1200px;">
+              <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-bottom">
+                  <h6 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Training Progress
+                  </h6>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Epoch</th>
+                          <th>Train Loss</th>
+                          <th>Val Loss</th>
+                          <th>Train Acc</th>
+                          <th>Val Acc</th>
+                        </tr>
+                      </thead>
+                      <tbody id="trainingProgressTable">
+                        <tr>
+                          <td colspan="5" class="text-center text-muted py-3">
+                            <i class="fas fa-hourglass-half me-2"></i>
+                            Waiting for training to start...
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-              <p class="mt-2 text-muted">
-                <span id="epochText">Epoch 0/10</span>
-              </p>
+
+              <!-- Training Status Alert -->
+              <div id="trainingStatusAlert" class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <div>
+                  <strong>Status:</strong> <span id="statusMessage">Training started asynchronously</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -232,6 +263,95 @@
 
 .step-line.completed {
   background-color: #198754;
+}
+
+#trainingProgressTable tr {
+  transition: background-color 0.3s ease;
+}
+
+#trainingProgressTable tr.new-row {
+  animation: highlightRow 1s ease;
+}
+
+@keyframes highlightRow {
+  0% {
+    background-color: #d1ecf1;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.training-in-progress {
+  background-color: #fff3cd;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.table th {
+  transition: background-color 0.3s ease;
+}
+
+#trainingProgressTable tr.new-row {
+  animation: highlightRow 1s ease;
+}
+
+@keyframes highlightRow {
+  0% {
+    background-color: #d1ecf1;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.training-in-progress {
+  background-color: #fff3cd;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.table th {
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table td {
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+
+.metric-good {
+  color: #198754;
+  font-weight: 600;
+}
+
+.metric-warning {
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.metric-danger {
+  color: #dc3545;
+  font-weight: 600;
 }
 </style>
 

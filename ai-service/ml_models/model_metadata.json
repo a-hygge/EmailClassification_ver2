@@ -1,7 +1,9 @@
 {
-  "max_words": 10000,
-  "max_len": 200,
-  "label_names": [
+  "model_type": "RNN",
+  "max_words": 50000,
+  "max_len": 256,
+  "num_classes": 7,
+  "classes": [
     "Bảo mật",
     "Công việc",
     "Gia đình",
@@ -10,20 +12,90 @@
     "Quảng cáo",
     "Spam"
   ],
-  "num_labels": 7,
-  "train_samples": 4858,
-  "val_samples": 1038,
-  "test_samples": 1041,
+  "hyperparameters": {
+    "epochs": 10,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "max_words": 50000,
+    "max_len": 256
+  },
+  "is_multilabel": true,
   "test_metrics": {
-    "loss": 0.2119523137807846,
-    "binary_accuracy": 0.9081926345825195,
-    "auc": 0.9476250410079956,
-    "precision": 0.8838920593261719,
-    "recall": 0.6722636818885803,
-    "hamming_loss": 0.09180732811856732,
-    "subset_accuracy": 0.5571565802113353,
-    "f1_macro": 0.7691687466498117,
-    "f1_micro": 0.7636877428470505,
-    "f1_weighted": 0.7614431295717555
+    "testLoss": 0.5266811847686768,
+    "testAccuracy": 0.7774804830551147,
+    "hammingLoss": 0.2225195553725813,
+    "subsetAccuracy": 0.008645533141210375,
+    "f1Macro": 0.017428866978654433,
+    "f1Micro": 0.01637852593266606,
+    "f1Weighted": 0.01608325802822891,
+    "classificationReport": {
+      "Bảo mật": {
+        "precision": 0.9090909090909091,
+        "recall": 0.02320185614849188,
+        "f1-score": 0.04524886877828054,
+        "support": 431.0
+      },
+      "Công việc": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 596.0
+      },
+      "Gia đình": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 362.0
+      },
+      "Giao dịch": {
+        "precision": 0.5,
+        "recall": 0.001834862385321101,
+        "f1-score": 0.003656307129798903,
+        "support": 545.0
+      },
+      "Học tập": {
+        "precision": 0.7222222222222222,
+        "recall": 0.03044496487119438,
+        "f1-score": 0.058426966292134834,
+        "support": 427.0
+      },
+      "Quảng cáo": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 491.0
+      },
+      "Spam": {
+        "precision": 1.0,
+        "recall": 0.007389162561576354,
+        "f1-score": 0.014669926650366748,
+        "support": 406.0
+      },
+      "micro avg": {
+        "precision": 0.6923076923076923,
+        "recall": 0.008287292817679558,
+        "f1-score": 0.01637852593266606,
+        "support": 3258.0
+      },
+      "macro avg": {
+        "precision": 0.44733044733044736,
+        "recall": 0.008981549423797672,
+        "f1-score": 0.017428866978654433,
+        "support": 3258.0
+      },
+      "weighted avg": {
+        "precision": 0.4231758964723974,
+        "recall": 0.008287292817679558,
+        "f1-score": 0.01608325802822891,
+        "support": 3258.0
+      },
+      "samples avg": {
+        "precision": 0.012007684918347743,
+        "recall": 0.011207172590457892,
+        "f1-score": 0.011127121357668907,
+        "support": 3258.0
+      }
+    },
+    "confusionMatrix": null
   }
 }

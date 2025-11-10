@@ -103,11 +103,10 @@ class ModelRetrainService {
         id: email.id,
         title: email.title,
         content: email.content,
-        // For multi-label, join all label names or use primary label
-        label: email.labels && email.labels.length > 0 
-          ? email.labels.map(l => l.name).join(', ') 
-          : 'Unknown',
-        labelIds: email.labels ? email.labels.map(l => l.id) : []
+        // For multi-label, return array of label names as expected by Python API
+        labels: email.labels && email.labels.length > 0 
+          ? email.labels.map(l => l.name) 
+          : ['Unknown']
       }));
     } catch (error) {
       console.error('Error preparing training data:', error);
@@ -129,6 +128,7 @@ class ModelRetrainService {
 
       const jobData = {
         tblUserId: userId,
+        tblModelId: config.modelId, // Add the required tblModelId field
         modelType: model.version,
         status: 'pending',
         hyperparameters: JSON.stringify(config.hyperparameters),
@@ -156,13 +156,30 @@ class ModelRetrainService {
       const job = await this.createRetrainJob(userId, config);
       const model = await modelDao.findById(config.modelId);
 
-      // Parse model type từ path
-      const pathParts = model.path.split('/').pop();
-      const modelType = pathParts
-        .replace('email_', '')
-        .replace('_model.h5', '')
-        .replace('_', '+')
-        .toUpperCase();
+      // Lấy model type từ database hoặc parse từ path
+      let modelType = model.model_type;
+      
+      if (!modelType) {
+        // Fallback: Parse từ path nếu không có model_type
+        const filename = model.path.split('/').pop();
+        
+        // Extract từ filename pattern: email_xxx_model.h5
+        if (filename.includes('bilstm_cnn')) {
+          modelType = 'BiLSTM+CNN';
+        } else if (filename.includes('bilstm')) {
+          modelType = 'BiLSTM';
+        } else if (filename.includes('lstm')) {
+          modelType = 'LSTM';
+        } else if (filename.includes('rnn')) {
+          modelType = 'RNN';
+        } else if (filename.includes('cnn')) {
+          modelType = 'CNN';
+        } else {
+          throw new Error(`Cannot determine model type from path: ${model.path}`);
+        }
+      }
+
+      console.log('✅ Using model type:', modelType);
 
       const trainingRequest = {
         jobId: job.id.toString(),

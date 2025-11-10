@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { requireAuth } from '../middleware/auth.js';
 const router = Router();
 
 import {
@@ -7,6 +8,7 @@ import {
   showResultsPage,
   getSamples,
   getModels,
+  getDatasets,
   startRetraining,
   getTrainingStatus,
   getTrainingResults,
@@ -18,6 +20,9 @@ import {
   overwriteModel,
 } from "../controllers/retrainController.js";
 
+// Áp dụng middleware authentication cho tất cả routes
+router.use(requireAuth);
+
 // Pages
 router.get("/", showRetrainPage);
 router.get("/config", showConfigPage);
@@ -26,6 +31,7 @@ router.get("/results", showResultsPage);
 // API endpoints - Train mới
 router.get("/samples", getSamples);
 router.get("/models", getModels);
+router.get("/datasets", getDatasets);
 router.post("/start", startRetraining);
 router.get("/status/:jobId", getTrainingStatus);
 router.get("/results/:jobId", getTrainingResults);

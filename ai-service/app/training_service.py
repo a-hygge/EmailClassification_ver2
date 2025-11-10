@@ -20,25 +20,88 @@ import json
 import pickle
 
 class TrainingCallback(Callback):
-    def __init__(self, job_manager, job_id: str, total_epochs: int):
+    def __init__(self, job_manager, job_id: str, total_epochs: int, update_freq: int = 10):
         super().__init__()
         self.job_manager = job_manager
         self.job_id = job_id
         self.total_epochs = total_epochs
+        self.update_freq = update_freq
+        self.current_epoch = 0
+        self.total_batches = 0
+        
+    def on_epoch_begin(self, epoch, logs=None):
+        self.current_epoch = epoch
+        
+    def on_train_batch_end(self, batch, logs=None):
+        if self.total_batches == 0:
+            self.total_batches = self.params['steps']
+        
+        if batch % self.update_freq == 0 or batch == self.total_batches - 1:
+            logs = logs or {}
+            epoch_progress = (batch + 1) / self.total_batches
+            total_progress = ((self.current_epoch + epoch_progress) / self.total_epochs) * 100
+            
+            log_message = (
+                f"{batch + 1}/{self.total_batches} "
+                f"- auc: {logs.get('auc', 0):.4f} "
+                f"- binary_accuracy: {logs.get('binary_accuracy', 0):.4f} "
+                f"- loss: {logs.get('loss', 0):.4f}"
+            )
+            
+            if logs.get('precision') is not None:
+                log_message += f" - precision: {logs.get('precision', 0):.4f}"
+            if logs.get('recall') is not None:
+                log_message += f" - recall: {logs.get('recall', 0):.4f}"
+            
+            self.job_manager.update_progress(
+                self.job_id,
+                current_epoch=self.current_epoch + 1,
+                total_epochs=self.total_epochs,
+                current_batch=batch + 1,
+                total_batches=self.total_batches,
+                progress=total_progress,
+                current_loss=float(logs.get('loss', 0)),
+                current_accuracy=float(logs.get('binary_accuracy', 0)),
+                current_auc=float(logs.get('auc', 0)),
+                current_precision=float(logs.get('precision', 0)),
+                current_recall=float(logs.get('recall', 0)),
+                log_message=log_message
+            )
+    
     def on_epoch_end(self, epoch, logs=None):
         logs = logs or {}
         progress = ((epoch + 1) / self.total_epochs) * 100
+        
+        log_message = (
+            f"Epoch {epoch + 1}/{self.total_epochs} "
+            f"- loss: {logs.get('loss', 0):.4f} "
+            f"- binary_accuracy: {logs.get('binary_accuracy', 0):.4f} "
+            f"- auc: {logs.get('auc', 0):.4f} "
+            f"- precision: {logs.get('precision', 0):.4f} "
+            f"- recall: {logs.get('recall', 0):.4f} "
+            f"- val_loss: {logs.get('val_loss', 0):.4f} "
+            f"- val_binary_accuracy: {logs.get('val_binary_accuracy', 0):.4f} "
+            f"- val_auc: {logs.get('val_auc', 0):.4f} "
+            f"- val_precision: {logs.get('val_precision', 0):.4f} "
+            f"- val_recall: {logs.get('val_recall', 0):.4f}"
+        )
+        
         self.job_manager.update_progress(
             self.job_id,
-            current_epoch=epoch + 1,  
+            current_epoch=epoch + 1,
             total_epochs=self.total_epochs,
             progress=progress,
-            
             current_loss=float(logs.get('loss', 0)),
-            current_accuracy=float(logs.get('accuracy', 0)),
-            
+            current_accuracy=float(logs.get('binary_accuracy', 0)),
+            current_auc=float(logs.get('auc', 0)),
+            current_precision=float(logs.get('precision', 0)),
+            current_recall=float(logs.get('recall', 0)),
             val_loss=float(logs.get('val_loss', 0)),
-            val_accuracy=float(logs.get('val_accuracy', 0))
+            val_accuracy=float(logs.get('val_binary_accuracy', 0)),
+            val_auc=float(logs.get('val_auc', 0)),
+            val_precision=float(logs.get('val_precision', 0)),
+            val_recall=float(logs.get('val_recall', 0)),
+            log_message=log_message
         )
 class TrainingService:
     def __init__(self, job_manager):
@@ -54,21 +117,17 @@ class TrainingService:
         Chuẩn bị dữ liệu cho multi-label classification.
         samples: List of dicts with 'title', 'content', 'labels' (list of label names)
         """
-        # Kết hợp text từ title và content
         texts = [f"{s['title']} {s['content']}" for s in samples]
-        # labels là list các nhãn cho mỗi email
         labels = [s['labels'] for s in samples]
         
-        # Chia train/test
         X_train_text, X_test_text, y_train_labels, y_test_labels = train_test_split(
-            texts,          
-            labels,          
-            test_size=test_size, 
-            random_state=42, 
-            shuffle=True     
+            texts,
+            labels,
+            test_size=test_size,
+            random_state=42,
+            shuffle=True
         )
         
-        # Tokenization
         tokenizer = Tokenizer(num_words=max_words)
         tokenizer.fit_on_texts(X_train_text + X_test_text)
         
@@ -76,18 +135,17 @@ class TrainingService:
         X_test_seq = tokenizer.texts_to_sequences(X_test_text)
         
         X_train = pad_sequences(
-            X_train_seq,          
-            maxlen=max_len,      
-            padding='post'       
+            X_train_seq,
+            maxlen=max_len,
+            padding='post'
         )
 
         X_test = pad_sequences(
-            X_test_seq,           
-            maxlen=max_len,       
-            padding='post'        
+            X_test_seq,
+            maxlen=max_len,
+            padding='post'
         )
         
-        # Multi-label encoding
         mlb = MultiLabelBinarizer()
         y_train = mlb.fit_transform(y_train_labels)
         y_test = mlb.transform(y_test_labels)
@@ -108,29 +166,29 @@ class TrainingService:
         """Build RNN model for multi-label classification"""
         model = Sequential([
             Embedding(
-                input_dim=max_words,       
-                output_dim=embedding_dim,  
-                input_length=max_len       
+                input_dim=max_words,
+                output_dim=embedding_dim,
+                input_length=max_len
             ),
             SimpleRNN(
-                rnn_units,                
-                return_sequences=False     
+                rnn_units,
+                return_sequences=False
             ),
             Dense(
-                num_classes,               
-                activation='sigmoid'  # Sigmoid for multi-label      
+                num_classes,
+                activation='sigmoid'
             )
         ])
         optimizer = Adam(learning_rate=learning_rate)
         model.compile(
-            loss='binary_crossentropy',  # Binary crossentropy for multi-label
-            optimizer=optimizer,              
+            loss='binary_crossentropy',
+            optimizer=optimizer,
             metrics=[
                 'binary_accuracy',
                 keras.metrics.AUC(name='auc'),
                 keras.metrics.Precision(name='precision'),
                 keras.metrics.Recall(name='recall')
-            ]              
+            ]
         )
         return model
     def build_lstm_model(
@@ -145,34 +203,34 @@ class TrainingService:
         """Build LSTM model for multi-label classification"""
         model = Sequential([
             Embedding(
-                input_dim=max_words,       
-                output_dim=embedding_dim,   
-                input_length=max_len        
+                input_dim=max_words,
+                output_dim=embedding_dim,
+                input_length=max_len
             ),
             LSTM(
-                lstm_units,                 
-                dropout=0.3,                
-                recurrent_dropout=0.3       
+                lstm_units,
+                dropout=0.3,
+                recurrent_dropout=0.3
             ),
             Dense(
-                128,                      
-                activation='relu'           
+                128,
+                activation='relu'
             ),
-            Dropout(0.4),                  
+            Dropout(0.4),
             Dense(
-                num_classes,                
-                activation='sigmoid'  # Sigmoid for multi-label       
+                num_classes,
+                activation='sigmoid'
             )
         ])
         model.compile(
-            loss='binary_crossentropy',  # Binary crossentropy for multi-label   
-            optimizer=Adam(learning_rate=learning_rate),  
+            loss='binary_crossentropy',
+            optimizer=Adam(learning_rate=learning_rate),
             metrics=[
                 'binary_accuracy',
                 keras.metrics.AUC(name='auc'),
                 keras.metrics.Precision(name='precision'),
                 keras.metrics.Recall(name='recall')
-            ]             
+            ]
         )
         return model
     def build_bilstm_model(
@@ -187,37 +245,37 @@ class TrainingService:
         """Build BiLSTM model for multi-label classification"""
         model = Sequential([
             Embedding(
-                input_dim=max_words,        
-                output_dim=embedding_dim,   
-                input_length=max_len        
+                input_dim=max_words,
+                output_dim=embedding_dim,
+                input_length=max_len
             ),
             Bidirectional(
                 LSTM(
-                    rnn_units,              
-                    dropout=0.3,            
-                    recurrent_dropout=0.3   
+                    rnn_units,
+                    dropout=0.3,
+                    recurrent_dropout=0.3
                 )
             ),
             Dense(
-                128,                      
-                activation='relu'          
+                128,
+                activation='relu'
             ),
-            Dropout(0.5),                  
+            Dropout(0.5),
             Dense(
-                num_classes,               
-                activation='sigmoid'  # Sigmoid for multi-label      
+                num_classes,
+                activation='sigmoid'
             )
         ])
         optimizer = Adam(learning_rate=learning_rate)
         model.compile(
-            loss='binary_crossentropy',  # Binary crossentropy for multi-label 
-            optimizer=optimizer,             
+            loss='binary_crossentropy',
+            optimizer=optimizer,
             metrics=[
                 'binary_accuracy',
                 keras.metrics.AUC(name='auc'),
                 keras.metrics.Precision(name='precision'),
                 keras.metrics.Recall(name='recall')
-            ]              
+            ]
         )
         return model
     def build_cnn_model(
@@ -233,31 +291,31 @@ class TrainingService:
         """Build CNN model for multi-label classification"""
         model = Sequential([
             Embedding(
-                input_dim=max_words,        
-                output_dim=embedding_dim,  
-                input_length=max_len       
+                input_dim=max_words,
+                output_dim=embedding_dim,
+                input_length=max_len
             ),
             Conv1D(
-                filters=num_filters,      
-                kernel_size=kernel_size,   
-                activation='relu'          
+                filters=num_filters,
+                kernel_size=kernel_size,
+                activation='relu'
             ),
             GlobalMaxPooling1D(),
-            Dropout(0.5),        
+            Dropout(0.5),
             Dense(
-                num_classes,              
-                activation='sigmoid'  # Sigmoid for multi-label    
+                num_classes,
+                activation='sigmoid'
             )
         ])
         model.compile(
-            loss='binary_crossentropy',  # Binary crossentropy for multi-label           
-            optimizer=Adam(learning_rate=learning_rate),  
+            loss='binary_crossentropy',
+            optimizer=Adam(learning_rate=learning_rate),
             metrics=[
                 'binary_accuracy',
                 keras.metrics.AUC(name='auc'),
                 keras.metrics.Precision(name='precision'),
                 keras.metrics.Recall(name='recall')
-            ]                          
+            ]
         )
         return model
     def build_bilstm_cnn_model(
@@ -270,38 +328,38 @@ class TrainingService:
         """Build BiLSTM+CNN model for multi-label classification"""
         model = Sequential([
             Embedding(
-                max_words, 128,                       
-                input_length=max_len        
+                max_words, 128,
+                input_length=max_len
             ),
             Conv1D(
-                64, 5, activation="relu"      
+                64, 5, activation="relu"
             ),
             MaxPooling1D(pool_size=2),
             Bidirectional(
                 LSTM(
-                    128, return_sequences=True   
+                    128, return_sequences=True
                 )
             ),
             GlobalMaxPooling1D(),
             Dense(
-                128,                     
-                activation="relu"          
+                128,
+                activation="relu"
             ),
-            Dropout(0.4),  
+            Dropout(0.4),
             Dense(
-                num_classes,              
-                activation="sigmoid"  # Sigmoid for multi-label     
+                num_classes,
+                activation="sigmoid"
             )
         ])
         model.compile(
-            loss="binary_crossentropy",  # Binary crossentropy for multi-label  
-            optimizer="adam",                   # Adam với default lr
+            loss="binary_crossentropy",
+            optimizer="adam",
             metrics=[
                 'binary_accuracy',
                 keras.metrics.AUC(name='auc'),
                 keras.metrics.Precision(name='precision'),
                 keras.metrics.Recall(name='recall')
-            ]                # Metrics
+            ]
         )
         return model
     def build_model(
@@ -337,12 +395,19 @@ class TrainingService:
         hyperparameters: Dict[str, Any]
     ) -> Dict[str, Any]:
         try:
-            print(f" Starting training for job {job_id}")
-            print(f"   Model type: {model_type}")
-            print(f"   Samples: {len(samples)}")
-            print(f"   Hyperparameters: {hyperparameters}")
-            
             self.job_manager.update_status(job_id, 'running')
+            
+            log_msg = f"Starting training for job {job_id}"
+            print(f" {log_msg}")
+            self.job_manager.update_progress(job_id, 0, 1, 0, log_message=log_msg)
+            
+            log_msg = f"Model type: {model_type}"
+            print(f"   {log_msg}")
+            self.job_manager.update_progress(job_id, 0, 1, 0, log_message=log_msg)
+            
+            log_msg = f"Samples: {len(samples)}"
+            print(f"   {log_msg}")
+            self.job_manager.update_progress(job_id, 0, 1, 0, log_message=log_msg)
             
             epochs = hyperparameters.get('epochs', 25)
             batch_size = hyperparameters.get('batch_size', 32)
@@ -350,48 +415,59 @@ class TrainingService:
             max_words = hyperparameters.get('max_words', 50000)
             max_len = hyperparameters.get('max_len', 256)
             
-            print(" Preparing data...")
+            log_msg = "Preparing data..."
+            print(f" {log_msg}")
+            self.job_manager.update_progress(job_id, 0, 1, 0, log_message=log_msg)
+            
             X_train, X_test, y_train, y_test, tokenizer, mlb, num_classes, label_names = \
                 self.prepare_data(samples, max_words, max_len)
             
-            print(f"   Train samples: {len(X_train)}")
-            print(f"   Test samples: {len(X_test)}")
-            print(f"   Number of classes: {num_classes}")
-            print(f"   Classes: {label_names}")
+            log_msg = f"Train samples: {len(X_train)}, Test samples: {len(X_test)}"
+            print(f"   {log_msg}")
+            self.job_manager.update_progress(job_id, 0, 1, 0, log_message=log_msg)
             
-            print(f"Building {model_type} model...")
+            log_msg = f"Number of classes: {num_classes}"
+            print(f"   {log_msg}")
+            self.job_manager.update_progress(job_id, 0, 1, 0, log_message=log_msg)
+            
+            log_msg = f"Building {model_type} model..."
+            print(f" {log_msg}")
+            self.job_manager.update_progress(job_id, 0, 1, 0, log_message=log_msg)
+            
             model = self.build_model(model_type, max_words, max_len, num_classes, learning_rate)
             model.summary()
             
             callback = TrainingCallback(self.job_manager, job_id, epochs)
             
-            print(f" Training model for {epochs} epochs...")
+            log_msg = f"Training model for {epochs} epochs..."
+            print(f" {log_msg}")
+            self.job_manager.update_progress(job_id, 0, epochs, 0, log_message=log_msg)
+            
             history = model.fit(
-                X_train, y_train,                  
-                validation_data=(X_test, y_test),   
-                epochs=epochs,                  
-                batch_size=batch_size,         
-                callbacks=[callback],           
-                verbose=1                       
+                X_train, y_train,
+                validation_data=(X_test, y_test),
+                epochs=epochs,
+                batch_size=batch_size,
+                callbacks=[callback],
+                verbose=1
             )
             
-            print(" Evaluating model...")
+            log_msg = "Evaluating model..."
+            print(f" {log_msg}")
+            self.job_manager.update_progress(job_id, epochs, epochs, 100, log_message=log_msg)
             test_results = model.evaluate(X_test, y_test, verbose=0)
             test_loss = test_results[0]
             test_accuracy = test_results[1]
             
-            # Predictions
-            y_pred_probs = model.predict(X_test, verbose=0) 
+            y_pred_probs = model.predict(X_test, verbose=0)
             y_pred_binary = (y_pred_probs > 0.5).astype(int)
             
-            # Multi-label metrics
             hamming = hamming_loss(y_test, y_pred_binary)
             subset_acc = accuracy_score(y_test, y_pred_binary)
             f1_macro = f1_score(y_test, y_pred_binary, average='macro', zero_division=0)
             f1_micro = f1_score(y_test, y_pred_binary, average='micro', zero_division=0)
             f1_weighted = f1_score(y_test, y_pred_binary, average='weighted', zero_division=0)
             
-            # Classification report per label
             report = classification_report(
                 y_test,
                 y_pred_binary,
@@ -401,28 +477,28 @@ class TrainingService:
             )
             
             results = {
-                'model': model,                    
-                'tokenizer': tokenizer,            
-                'label_binarizer': mlb,  # Changed from label_encoder to label_binarizer
+                'model': model,
+                'tokenizer': tokenizer,
+                'label_binarizer': mlb,
                 'metadata': {
-                    'model_type': model_type,       
-                    'max_words': max_words,         
-                    'max_len': max_len,             
-                    'num_classes': num_classes,      
-                    'classes': label_names.tolist(),  
+                    'model_type': model_type,
+                    'max_words': max_words,
+                    'max_len': max_len,
+                    'num_classes': num_classes,
+                    'classes': label_names.tolist(),
                     'hyperparameters': hyperparameters,
-                    'is_multilabel': True  # Flag to indicate multi-label
+                    'is_multilabel': True
                 },
                 'metrics': {
-                    'testLoss': float(test_loss),               
+                    'testLoss': float(test_loss),
                     'testAccuracy': float(test_accuracy),
                     'hammingLoss': float(hamming),
                     'subsetAccuracy': float(subset_acc),
                     'f1Macro': float(f1_macro),
                     'f1Micro': float(f1_micro),
                     'f1Weighted': float(f1_weighted),
-                    'classificationReport': report,            
-                    'confusionMatrix': None  # Confusion matrix not typically used for multi-label
+                    'classificationReport': report,
+                    'confusionMatrix': None
                 },
                 'history': {
                     'loss': [float(x) for x in history.history['loss']],
@@ -465,24 +541,20 @@ class TrainingService:
         
         os.makedirs(output_dir, exist_ok=True)
         
-        # Lưu model
         model_path = os.path.join(output_dir, f"{model_name}.h5")
         results['model'].save(model_path)
         print(f" Model saved to: {model_path}")
         
-        # Lưu tokenizer
         tokenizer_path = os.path.join(output_dir, 'tokenizer.pkl')
         with open(tokenizer_path, 'wb') as f:
             pickle.dump(results['tokenizer'], f)
         print(f" Tokenizer saved to: {tokenizer_path}")
         
-        # Lưu label binarizer (cho multi-label)
         label_binarizer_path = os.path.join(output_dir, 'label_binarizer.pkl')
         with open(label_binarizer_path, 'wb') as f:
             pickle.dump(results['label_binarizer'], f)
         print(f" Label binarizer saved to: {label_binarizer_path}")
         
-        # Lưu metadata
         metadata = results['metadata'].copy()
         metadata['test_metrics'] = results['metrics']
         

@@ -122,15 +122,13 @@ class RetrainService {
       if (status.status !== job.status) {
         await trainingJobDao.update(jobId, { status: status.status });
       }
-      const progressInfo = status.progress || {};
 
       return {
         success: true,
         jobId: job.id,
         status: status.status,
-        progress: progressInfo.progress || 0,
-        currentEpoch: progressInfo.currentEpoch || 0,
-        totalEpochs: progressInfo.totalEpochs || 0
+        progress: status.progress || null,
+        logs: status.logs || []
       };
     } catch (error) {
       console.error('Error getting training status:', error);

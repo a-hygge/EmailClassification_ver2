@@ -3,7 +3,10 @@
 -- ============================================
 -- This script populates:
 -- 1. 7 Labels (Bảo mật, Công việc, Gia đình, Giao dịch, Học tập, Quảng cáo, Spam)
--- 2. 10 Sample emails for each label (70 total emails)
+-- 2. 70 Sample emails for training (10 emails/label)
+-- 3. 20 Additional emails with labels (NOT in training dataset)
+-- 4. 5 Multi-label emails (emails with 2-3 labels each)
+-- Total: 95 emails
 -- ============================================
 -- Phù hợp với cấu trúc create_table.sql MỚI (multi-label):
 --   - tblLabel (id, name, description)
@@ -259,6 +262,113 @@ INSERT INTO tblEmailLabel (tblEmailSampleId, tblLabelId) VALUES
 (@trans_start + 9, @label_giao_dich);
 
 -- ============================================
+-- ADDITIONAL SAMPLES (20 emails) - Not in training dataset
+-- ============================================
+-- These emails have labels but are NOT included in training dataset
+-- Can be used for testing or manual selection for future training
+
+INSERT INTO tblEmailSample (title, content, sender, receiver) VALUES
+-- Bảo mật (3 emails)
+('Yêu cầu xác thực email mới', 'Chúng tôi phát hiện yêu cầu thêm email mới vào tài khoản của bạn. Vui lòng xác nhận bằng cách click vào link bên dưới.', 'security@service.com', @default_receiver),
+('Thông báo đổi số điện thoại liên kết', 'Số điện thoại liên kết với tài khoản của bạn đã được thay đổi thành 0901234567. Nếu không phải bạn, vui lòng liên hệ ngay.', 'security@bank.com', @default_receiver),
+('Cảnh báo truy cập từ địa điểm lạ', 'Tài khoản của bạn vừa được truy cập từ Đà Nẵng lúc 14:30. Nếu không phải bạn, hãy đổi mật khẩu ngay.', 'alert@service.com', @default_receiver),
+
+-- Công việc (3 emails)
+('Lịch họp quý 4/2025', 'Họp tổng kết quý 4 vào 9h sáng thứ Hai tuần sau tại phòng họp tầng 5. Vui lòng chuẩn bị báo cáo KPI.', 'admin@company.com', @default_receiver),
+('Đánh giá hiệu suất công việc', 'Đã đến thời gian đánh giá hiệu suất 6 tháng. Vui lòng điền form tự đánh giá trước ngày 15/11.', 'hr@company.com', @default_receiver),
+('Thông báo tăng lương', 'Chúc mừng! Lương của bạn được tăng 15% từ tháng 12/2025. Chi tiết xem trong phiếu lương.', 'hr@company.com', @default_receiver),
+
+-- Gia đình (3 emails)
+('Lịch du lịch gia đình Tết 2026', 'Mọi người đã đồng ý đi du lịch Nha Trang dịp Tết. Anh đặt khách sạn 5 ngày 4 đêm cho cả nhà.', 'brother@family.com', @default_receiver),
+('Sinh nhật bé An tuần sau', 'Nhắc nhở: sinh nhật bé An 5 tuổi vào Chủ nhật tuần sau. Mẹ nhờ mọi người đến đúng 4h chiều nhé.', 'mom@family.com', @default_receiver),
+('Kết quả khám sức khỏe của bố', 'Con ơi, bố vừa đi khám xong. Bác sĩ nói sức khỏe tốt, chỉ cần uống thuốc đều đặn. Yên tâm nhé!', 'dad@family.com', @default_receiver),
+
+-- Giao dịch (3 emails)
+('Biên lai thanh toán tiền điện', 'Tiền điện tháng 11/2025: 850.000đ đã được thanh toán thành công. Xem chi tiết trong file đính kèm.', 'evn@utility.com', @default_receiver),
+('Xác nhận chuyển tiền thành công', 'Giao dịch chuyển 3.000.000đ đến TK 0123456789 - Nguyễn Văn B thành công lúc 10:25 hôm nay.', 'notify@bank.com', @default_receiver),
+('Thông báo cắt hạn mức thẻ tín dụng', 'Hạn mức thẻ tín dụng của bạn đã đạt 85%. Vui lòng thanh toán trước hạn để tránh phí phạt.', 'card@bank.com', @default_receiver),
+
+-- Học tập (3 emails)
+('Thông báo lịch thi lại học kỳ 1', 'Sinh viên không đạt môn nào có thể đăng ký thi lại từ 20-25/11. Lệ phí 200.000đ/môn.', 'daotao@university.edu.vn', @default_receiver),
+('Mời tham gia cuộc thi lập trình', 'Khoa CNTT tổ chức cuộc thi lập trình AI Marathon 2025. Giải nhất 20 triệu đồng. Đăng ký trước 30/11.', 'it@university.edu.vn', @default_receiver),
+('Kết quả đăng ký học phần', 'Bạn đã đăng ký thành công 5 học phần học kỳ 2. Tổng học phí: 8.500.000đ. Hạn đóng: 15/12/2025.', 'finance@university.edu.vn', @default_receiver),
+
+-- Quảng cáo (3 emails)
+('Black Friday 2025 - Sale up to 70%', 'Siêu sale Black Friday! Giảm đến 70% tất cả sản phẩm. Chỉ từ 27-29/11. Đừng bỏ lỡ!', 'marketing@shop.com', @default_receiver),
+('Khóa học AI miễn phí cho sinh viên', 'Đăng ký miễn phí khóa học AI cơ bản 40 giờ. Nhận chứng chỉ sau khi hoàn thành. Số lượng có hạn!', 'edu@aiacademy.com', @default_receiver),
+('Ưu đãi vé máy bay Tết 2026', 'Đặt vé máy bay Tết sớm giảm 30%. HN-SGN chỉ 700k. Áp dụng từ nay đến 30/11. Book ngay!', 'ticket@airline.com', @default_receiver),
+
+-- Spam (2 emails)  
+('CHÚC MỪNG BẠN TRÚNG XE HƠI', 'Chúc mừng số điện thoại của bạn trúng giải đặc biệt xe Vinfast Lux A2.0. Liên hệ 0999999999 để nhận xe.', 'spam@fake.com', @default_receiver),
+('Kiếm 100 triệu/tháng làm việc tại nhà', 'Cơ hội vàng! Làm việc online tại nhà, thu nhập 100 triệu/tháng. Không cần kinh nghiệm. Inbox ngay!', 'scam@fake.com', @default_receiver);
+
+SET @additional_start = LAST_INSERT_ID();
+
+-- Link with labels
+INSERT INTO tblEmailLabel (tblEmailSampleId, tblLabelId) VALUES
+-- Bảo mật (3)
+(@additional_start, @label_bao_mat),
+(@additional_start + 1, @label_bao_mat),
+(@additional_start + 2, @label_bao_mat),
+-- Công việc (3)
+(@additional_start + 3, @label_cong_viec),
+(@additional_start + 4, @label_cong_viec),
+(@additional_start + 5, @label_cong_viec),
+-- Gia đình (3)
+(@additional_start + 6, @label_gia_dinh),
+(@additional_start + 7, @label_gia_dinh),
+(@additional_start + 8, @label_gia_dinh),
+-- Giao dịch (3)
+(@additional_start + 9, @label_giao_dich),
+(@additional_start + 10, @label_giao_dich),
+(@additional_start + 11, @label_giao_dich),
+-- Học tập (3)
+(@additional_start + 12, @label_hoc_tap),
+(@additional_start + 13, @label_hoc_tap),
+(@additional_start + 14, @label_hoc_tap),
+-- Quảng cáo (3)
+(@additional_start + 15, @label_quang_cao),
+(@additional_start + 16, @label_quang_cao),
+(@additional_start + 17, @label_quang_cao),
+-- Spam (2)
+(@additional_start + 18, @label_spam),
+(@additional_start + 19, @label_spam);
+
+-- ============================================
+-- MULTI-LABEL EMAILS (5 additional samples)
+-- ============================================
+-- Emails with multiple labels for testing multi-label classification
+
+INSERT INTO tblEmailSample (title, content, sender, receiver) VALUES
+('Thông báo thanh toán học phí học kỳ 1', 'Kính gửi phụ huynh, học phí học kỳ 1 năm học 2025-2026 là 15.000.000 VNĐ. Vui lòng thanh toán trước ngày 15/11/2025 qua chuyển khoản. Mã học sinh: HS2025001. Tài khoản: 1234567890 - Ngân hàng Vietcombank.', 'finance@school.edu.vn', @default_receiver),
+('Xác nhận đơn hàng và lịch giao hàng', 'Cảm ơn bạn đã đặt hàng #ORD789456. Tổng giá trị: 5.250.000 VNĐ. Đơn hàng sẽ được giao vào ngày 12/11/2025. Vui lòng chuẩn bị tiền mặt hoặc thanh toán qua thẻ khi nhận hàng. Hotline: 1900-1234.', 'orders@shop.com', @default_receiver),
+('Mời họp phụ huynh và báo cáo học tập', 'Trường THPT ABC trân trọng mời phụ huynh tham dự buổi họp phụ huynh vào 14h Chủ Nhật 17/11/2025 tại hội trường. Nội dung: Báo cáo kết quả học tập học kỳ 1 và định hướng học tập. Mọi thắc mắc xin liên hệ: 024-3456-7890.', 'info@school.edu.vn', @default_receiver),
+('Cảnh báo bảo mật và yêu cầu cập nhật thông tin giao dịch', 'CẢNH BÁO: Phát hiện đăng nhập bất thường vào tài khoản ngân hàng của bạn từ IP 45.123.67.89. Vui lòng xác thực danh tính và cập nhật thông tin bảo mật. Mọi giao dịch đã bị tạm khóa để đảm bảo an toàn. Liên hệ: 1900-5555.', 'security@bank.com', @default_receiver),
+('Khuyến mãi đặc biệt cho nhân viên công ty', 'Thông báo đến toàn thể CBNV: Công ty hợp tác với Gym Fitness cung cấp gói tập gym 12 tháng giảm 40% (chỉ còn 3.600.000 VNĐ). Đăng ký trước 20/11/2025. Đây là phúc lợi dành riêng cho nhân viên. Liên hệ HR: ext.123.', 'hr@company.com', @default_receiver);
+
+SET @multi_start = LAST_INSERT_ID();
+
+-- Multi-label relationships
+INSERT INTO tblEmailLabel (tblEmailSampleId, tblLabelId) VALUES
+-- Email 1: Học tập + Giao dịch + Gia đình
+(@multi_start, @label_hoc_tap),
+(@multi_start, @label_giao_dich),
+(@multi_start, @label_gia_dinh),
+-- Email 2: Giao dịch + Quảng cáo
+(@multi_start + 1, @label_giao_dich),
+(@multi_start + 1, @label_quang_cao),
+-- Email 3: Học tập + Gia đình + Công việc
+(@multi_start + 2, @label_hoc_tap),
+(@multi_start + 2, @label_gia_dinh),
+(@multi_start + 2, @label_cong_viec),
+-- Email 4: Bảo mật + Giao dịch
+(@multi_start + 3, @label_bao_mat),
+(@multi_start + 3, @label_giao_dich),
+-- Email 5: Công việc + Quảng cáo
+(@multi_start + 4, @label_cong_viec),
+(@multi_start + 4, @label_quang_cao);
+
+-- ============================================
 -- VERIFY DATA
 -- ============================================
 
@@ -286,5 +396,6 @@ SELECT
     'Total Email-Label Relationships' AS 'Metric',
     COUNT(*) AS 'Count'
 FROM tblEmailLabel;
+
 
 

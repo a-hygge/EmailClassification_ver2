@@ -9,6 +9,12 @@ const { Label, EmailSample, sequelize } = db;
 class DashboardController {
   async index(req, res) {
     try {
+      // Kiểm tra session user
+      if (!req.session || !req.session.user || !req.session.user.email) {
+        console.log('User not logged in, redirecting to login');
+        return res.redirect('/auth/login');
+      }
+
       const userEmail = req.session.user.email;
 
       const totalSamples = await EmailSample.count({

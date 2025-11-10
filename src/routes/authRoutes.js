@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { redirectIfAuthenticated } from '../middleware/auth.js';
 import {
   showLoginPage,
   login,
@@ -11,13 +12,13 @@ import {
 const router = Router();
 
 // GET /auth/login - Hiển thị form login
-router.get('/login', showLoginPage);
+router.get('/login', redirectIfAuthenticated, showLoginPage);
 
 // POST /auth/login - Xử lý login
 router.post('/login', login);
 
 // GET /auth/register - Hiển thị form register
-router.get('/register', showRegisterPage);
+router.get('/register', redirectIfAuthenticated, showRegisterPage);
 
 // POST /auth/register - Xử lý register
 router.post('/register', register);

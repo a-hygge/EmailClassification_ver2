@@ -2,6 +2,8 @@ let currentJobId = null;
 let pollingInterval = null;
 let isRetrain = false;
 let selectedModelId = null;
+let allDatasets = [];
+let allModels = [];
 
 function backToSamples() {
   window.location.href = '/retrain';
@@ -39,29 +41,23 @@ function validateConfiguration() {
 function getConfiguration() {
   const selectedSamples = JSON.parse(sessionStorage.getItem('selectedSamples') || '[]');
 
-  let modelId, modelType;
+  let modelId;
 
   if (isRetrain) {
-    // Retrain: sử dụng model đã chọn
     modelId = selectedModelId;
-    modelType = document.getElementById('retrainModelType').textContent;
   } else {
-    // Train mới: lấy từ select
     const modelSelect = document.getElementById('modelType');
     modelId = parseInt(modelSelect.value);
-    modelType = modelSelect.options[modelSelect.selectedIndex].text;
   }
 
-  console.log(' Getting configuration:', {
+  console.log('✅ Getting configuration:', {
     isRetrain,
     modelId,
-    modelType,
     selectedSamplesCount: selectedSamples.length
   });
 
   return {
     modelId: modelId,
-    modelType: modelType,
     sampleIds: selectedSamples,
     hyperparameters: {
       learning_rate: parseFloat(document.getElementById('learningRate').value),
@@ -197,10 +193,30 @@ async function loadModelsForConfig() {
     const data = await response.json();
 
     if (data.success && data.models) {
+      allModels = data.models;
       populateModelSelect(data.models);
+      
+      // Load datasets
+      await loadDatasets();
     }
   } catch (error) {
     console.error('Error loading models:', error);
+  }
+}
+
+async function loadDatasets() {
+  try {
+    const response = await fetch('/retrain/datasets', {
+      credentials: 'include'
+    });
+    const data = await response.json();
+
+    if (data.success && data.datasets) {
+      allDatasets = data.datasets;
+      console.log('Loaded datasets:', allDatasets);
+    }
+  } catch (error) {
+    console.error('Error loading datasets:', error);
   }
 }
 
@@ -212,6 +228,12 @@ function populateModelSelect(models) {
   models.forEach(model => {
     const option = document.createElement('option');
     option.value = model.id;
+    
+    // Lưu dataset ID vào data attribute
+    if (model.dataset && model.dataset.id) {
+      option.setAttribute('data-dataset-id', model.dataset.id);
+    }
+    
     option.textContent = model.name;
 
     if (model.accuracy) {
@@ -220,5 +242,41 @@ function populateModelSelect(models) {
 
     modelSelect.appendChild(option);
   });
+  
+  // Thêm event listener để tự động chọn dataset khi chọn model
+  modelSelect.addEventListener('change', onModelSelectChanged);
+}
+
+function onModelSelectChanged(e) {
+  const selectedOption = e.target.options[e.target.selectedIndex];
+  const datasetId = selectedOption.getAttribute('data-dataset-id');
+  
+  if (datasetId) {
+    console.log('Model has dataset:', datasetId);
+    // Hiển thị thông tin dataset được chọn
+    displaySelectedDataset(parseInt(datasetId));
+  }
+}
+
+function displaySelectedDataset(datasetId) {
+  const dataset = allDatasets.find(d => d.id === datasetId);
+  
+  if (dataset) {
+    console.log('Selected dataset:', dataset);
+    
+    // Hiển thị thông tin dataset (có thể thêm UI element để hiển thị)
+    const datasetInfoDiv = document.getElementById('datasetInfo');
+    if (datasetInfoDiv) {
+      datasetInfoDiv.innerHTML = `
+        <div class="alert alert-success">
+          <h6 class="alert-heading"><i class="fas fa-database me-2"></i>Dataset đã chọn tự động</h6>
+          <p class="mb-1"><strong>Tên:</strong> ${dataset.name}</p>
+          <p class="mb-1"><strong>Mô tả:</strong> ${dataset.description || 'N/A'}</p>
+          <p class="mb-0"><strong>Số lượng emails:</strong> ${dataset.quantity}</p>
+        </div>
+      `;
+      datasetInfoDiv.style.display = 'block';
+    }
+  }
 }
 
