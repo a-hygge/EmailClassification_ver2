@@ -51,20 +51,14 @@ class AuthController {
         id: user.id,
         username: user.username,
         email: user.email,
-        // full_name: user.full_name,
-        // avatar: user.avatar,
-        // role: user.role
       };
       if (remember) {
         res.cookie("token", token, {
           httpOnly: true,
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          maxAge: 7 * 24 * 60 * 60 * 1000,
           secure: process.env.NODE_ENV === "production",
         });
       }
-
-      // Update last login
-      // await user.update({ last_login: new Date() });
 
       req.session.success = "Đăng nhập thành công!";
 
@@ -96,21 +90,21 @@ class AuthController {
   }
   async register(req, res) {
     try {
-      const { username, password } = req.body;
+      const { username, email, password } = req.body;
 
-      // const existingUser = await User.findOne({
-      //   where: { username: username.toLowerCase() }
-      // });
+      const existingEmail = await User.findOne({
+        where: { email },
+      });
 
-      // if (existingUser) {
-      //   return res.render('pages/auth/register', {
-      //     title: 'Register - Email Classification System',
-      //     layout: 'layouts/auth',
-      //     error: 'Email này đã được sử dụng',
-      //     errors: {},
-      //     oldInput: { username, email, full_name }
-      //   });
-      // }
+      if (existingEmail) {
+        return res.render("pages/auth/register", {
+          title: "Register - Email Classification System",
+          layout: "layouts/auth",
+          error: "Email này đã được sử dụng",
+          errors: {},
+          oldInput: { username, email },
+        });
+      }
 
       const existingUsername = await User.findOne({
         where: { username },
@@ -122,7 +116,7 @@ class AuthController {
           layout: "layouts/auth",
           error: "Username này đã được sử dụng",
           errors: {},
-          oldInput: { username, email, full_name },
+          oldInput: { username, email },
         });
       }
 
@@ -130,6 +124,7 @@ class AuthController {
 
       const newUser = await User.create({
         username,
+        email,
         password: hashedPassword,
       });
 

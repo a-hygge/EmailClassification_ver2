@@ -24,7 +24,6 @@
         <% } %>
 
           <form action="/auth/login" method="POST" class="auth-form">
-            <!-- Email -->
             <div class="form-group mb-3">
               <label for="username" class="form-label">
                 <i class="fas fa-user"></i> Username
@@ -33,7 +32,6 @@
                 value="<%= oldInput.username || '' %>" required autocomplete="username">
             </div>
 
-            <!-- Password -->
             <div class="form-group mb-3">
               <label for="password" class="form-label">
                 <i class="fas fa-lock"></i> Mật khẩu

@@ -15,7 +15,6 @@
     <% } %>
 
       <form action="/auth/register" method="POST" class="auth-form">
-        <!-- Username -->
         <div class="form-group mb-3">
           <label for="username" class="form-label">
             <i class="fas fa-user"></i> Username
@@ -29,8 +28,7 @@
             <% } %>
         </div>
 
-        <!-- Email -->
-        <!-- <div class="form-group mb-3">
+        <div class="form-group mb-3">
           <label for="email" class="form-label">
             <i class="fas fa-envelope"></i> Email
           </label>
@@ -41,18 +39,8 @@
               <%= errors.email %>
             </div>
             <% } %>
-        </div> -->
+        </div>
 
-        <!-- Full Name -->
-        <!-- <div class="form-group mb-3">
-          <label for="full_name" class="form-label">
-            <i class="fas fa-id-card"></i> Họ và tên
-          </label>
-          <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Nguyễn Văn A"
-            value="<%= oldInput.full_name || '' %>">
-        </div> -->
-
-        <!-- Password -->
         <div class="form-group mb-3">
           <label for="password" class="form-label">
             <i class="fas fa-lock"></i> Mật khẩu

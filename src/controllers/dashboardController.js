@@ -1,28 +1,37 @@
 import db from '../models/index.js';
+import { Op } from 'sequelize';
 import emailDao from '../dao/emailDao.js';
 import labelDao from '../dao/labelDao.js';
 import modelDao from '../dao/modelDao.js';
 
-const { Label, sequelize } = db;
+const { Label, EmailSample, sequelize } = db;
 
 class DashboardController {
   async index(req, res) {
     try {
-      // Count total email samples
-      const totalSamples = await emailDao.count();
-      
+      const userEmail = req.session.user.email;
+
+      const totalSamples = await EmailSample.count({
+        where: {
+          [Op.or]: [
+            { sender: userEmail },
+            { receiver: userEmail }
+          ]
+        }
+      });
+
       const labels = await labelDao.findAll();
-      
+
       const labelsWithCount = await Promise.all(
         labels.map(async (label) => {
-          // Count emails that have this label (multi-label aware)
           const emailCount = await db.sequelize.query(
-            `SELECT COUNT(DISTINCT es.id) as count 
-             FROM tblEmailSample es 
-             INNER JOIN tblEmailLabel el ON es.id = el.tblEmailSampleId 
-             WHERE el.tblLabelId = :labelId`,
+            `SELECT COUNT(DISTINCT es.id) as count
+             FROM tblEmailSample es
+             INNER JOIN tblEmailLabel el ON es.id = el.tblEmailSampleId
+             WHERE el.tblLabelId = :labelId
+             AND (es.sender = :userEmail OR es.receiver = :userEmail)`,
             {
-              replacements: { labelId: label.id },
+              replacements: { labelId: label.id, userEmail: userEmail },
               type: db.sequelize.QueryTypes.SELECT
             }
           );
@@ -38,11 +47,16 @@ class DashboardController {
 
       const models = await modelDao.findAll();
       const activeModel = await modelDao.getActiveModel();
-      
-      // Get recent email samples with their labels
+
       const recentSamples = await emailDao.findAll({
+        where: {
+          [Op.or]: [
+            { sender: userEmail },
+            { receiver: userEmail }
+          ]
+        },
         include: [
-          { model: db.Label, as: 'labels', through: { attributes: [] } }
+          { model: Label, as: 'labels', through: { attributes: [] } }
         ],
         order: [['id', 'DESC']],
         limit: 10

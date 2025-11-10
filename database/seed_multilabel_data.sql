@@ -44,64 +44,44 @@ INSERT INTO tblLabel (name, description) VALUES
 -- =============================================
 INSERT INTO tblEmailSample (title, content, sender, receiver) VALUES
 -- Email 1: Công việc + Quan trọng + Tiếng Việt
-('Báo cáo tháng 11 - Deadline 15/11', 
+('Báo cáo tháng 11 - Deadline 15/11',
  'Anh/chị vui lòng hoàn thành báo cáo tháng 11 và gửi trước ngày 15/11. Đây là công việc quan trọng và cần ưu tiên.',
- 'manager@company.com', 'employee@company.com'),
-
--- Email 2: Spam + Khuyến mãi + Tiếng Việt
+ 'manager@company.com', 'nguyenthituanh135@gmail.com'),
 (' FLASH SALE 50% - Mua ngay hôm nay!',
  'Chương trình khuyến mãi lớn nhất năm! Giảm giá 50% tất cả sản phẩm. Click ngay để mua hàng!',
- 'marketing@shop.com', 'customer@gmail.com'),
-
--- Email 3: Học tập + Thông báo + Tiếng Việt
+ 'marketing@shop.com', 'nguyenthituanh135@gmail.com'),
 ('Thông báo lịch thi giữa kỳ',
  'Kính gửi sinh viên, Lịch thi giữa kỳ môn Machine Learning được tổ chức vào ngày 20/11. Vui lòng chuẩn bị đầy đủ.',
- 'university@edu.vn', 'student@edu.vn'),
-
--- Email 4: Spam + Tiếng Anh
+ 'university@edu.vn', 'nguyenthituanh135@gmail.com'),
 ('You won $1 million! Claim now!',
  'Congratulations! You have been selected as the winner of our lottery. Click here to claim your prize now!',
- 'scam@fake.com', 'victim@gmail.com'),
-
--- Email 5: Giao dịch + Bảo mật + Tiếng Việt
+ 'scam@fake.com', 'nguyenthituanh135@gmail.com'),
 ('Xác nhận đơn hàng #12345',
  'Cảm ơn bạn đã đặt hàng! Mã đơn hàng: 12345. Tổng tiền: 500,000 VNĐ. Đơn hàng sẽ được giao trong 3-5 ngày.',
- 'orders@ecommerce.vn', 'buyer@gmail.com'),
-
--- Email 6: Công việc + Học tập + Tiếng Anh
+ 'orders@ecommerce.vn', 'nguyenthituanh135@gmail.com'),
 ('Project Meeting - Machine Learning Assignment',
  'Dear team, We will have a meeting tomorrow at 10 AM to discuss the machine learning project. Please prepare your progress report.',
- 'team.lead@company.com', 'team@company.com'),
-
--- Email 7: Bảo mật + Quan trọng + Tiếng Anh
+ 'team.lead@company.com', 'nguyenthituanh135@gmail.com'),
 ('Security Alert: Unusual login detected',
  'We detected a login to your account from a new device in London. If this was not you, please change your password immediately.',
- 'security@service.com', 'user@gmail.com'),
-
--- Email 8: Khuyến mãi + Giao dịch + Tiếng Việt
+ 'security@service.com', 'nguyenthituanh135@gmail.com'),
 ('Mã giảm giá 100K cho đơn hàng đầu tiên',
  'Chào mừng khách hàng mới! Nhập mã WELCOME100 để được giảm 100,000đ cho đơn hàng đầu tiên từ 500,000đ.',
- 'promo@shop.vn', 'newcustomer@gmail.com'),
+ 'promo@shop.vn', 'nguyenthituanh135@gmail.com'),
 
--- Email 9: Cá nhân + Tiếng Việt
 ('Lịch hẹn gặp bạn cuối tuần',
  'Hi bạn, Cuối tuần này mình có hẹn gặp nhau uống cà phê không? Lâu rồi không gặp.',
- 'friend@gmail.com', 'me@gmail.com'),
-
--- Email 10: Thông báo + Học tập + Tiếng Anh
+ 'friend@gmail.com', 'nguyenthituanh135@gmail.com'),
 ('New Course Available: Deep Learning Fundamentals',
  'A new course on Deep Learning is now available. Enroll now to get 20% early bird discount. Limited seats!',
- 'courses@platform.com', 'learner@gmail.com'),
+ 'courses@platform.com', 'nguyenthituanh135@gmail.com'),
 
--- Email 11: Công việc + Quan trọng + Giao dịch + Tiếng Việt
 ('Hợp đồng cần ký gấp - Deadline hôm nay',
  'Kính gửi anh/chị, Hợp đồng với khách hàng ABC cần được ký và gửi lại trước 5PM hôm nay. Đây là vấn đề khẩn cấp.',
- 'legal@company.vn', 'manager@company.vn'),
-
--- Email 12: Spam + Khuyến mãi + Tiếng Anh
+ 'legal@company.vn', 'nguyenthituanh135@gmail.com'),
 ('Get Rich Quick! Make $5000/day from home',
  'Amazing opportunity! Work from home and earn $5000 per day. No experience needed. Click here to start now!',
- 'spam@scam.com', 'target@gmail.com');
+ 'spam@scam.com', 'nguyenthituanh135@gmail.com');
 
 -- =============================================
 -- 4. SEED EMAIL-LABEL RELATIONSHIPS (Multi-label)

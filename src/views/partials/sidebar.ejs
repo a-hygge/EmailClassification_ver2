@@ -5,7 +5,10 @@
     <ul class="nav flex-column mb-3">
       <!-- Dashboard -->
       <li class="nav-item">
-  <a class="nav-link <%= cp === 'dashboard' ? 'active' : '' %>" href="/dashboard">
+        <a
+          class="nav-link <%= cp === 'dashboard' ? 'active' : '' %>"
+          href="/dashboard"
+        >
           <i class="fas fa-home me-2"></i>
           <span>Dashboard</span>
         </a>
@@ -13,36 +16,44 @@
 
       <!-- All Emails -->
       <li class="nav-item">
-  <a class="nav-link <%= cp === 'emails' && !selectedLabel ? 'active' : '' %>" href="/emails">
+        <a
+          class="nav-link <%= cp === 'emails' && !selectedLabel ? 'active' : '' %>"
+          href="/emails"
+        >
           <i class="fas fa-inbox me-2"></i>
           <span>Tất cả Email</span>
           <% if (typeof stats !=='undefined' && stats.unread> 0) { %>
-            <span class="badge bg-primary rounded-pill ms-auto">
-              <%= stats.unread %>
-            </span>
-            <% } %>
+          <span class="badge bg-primary rounded-pill ms-auto">
+            <%= stats.unread %>
+          </span>
+          <% } %>
         </a>
       </li>
 
       <!-- Important Emails -->
       <li class="nav-item">
-  <a class="nav-link <%= cp === 'ImportantEmails' ? 'active' : '' %>" href="/emails/important">
+        <a
+          class="nav-link <%= cp === 'ImportantEmails' ? 'active' : '' %>"
+          href="/emails/important"
+        >
           <i class="fas fa-star me-2 text-warning"></i>
           <span>Quan trọng</span>
           <% if (typeof stats !=='undefined' && stats.important> 0) { %>
-            <span class="badge bg-warning rounded-pill ms-auto">
-              <%= stats.important %>
-            </span>
-            <% } %>
+          <span class="badge bg-warning rounded-pill ms-auto">
+            <%= stats.important %>
+          </span>
+          <% } %>
         </a>
       </li>
     </ul>
 
-    <hr>
+    <hr />
 
     <!-- Labels Section -->
     <div class="sidebar-section">
-      <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-2 text-muted">
+      <h6
+        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-2 text-muted"
+      >
         <span>
           <i class="fas fa-tags me-2"></i>
           Danh mục
@@ -53,48 +64,46 @@
       </h6>
 
       <ul class="nav flex-column mb-3">
-        <% if (typeof labels !=='undefined' && labels.length> 0) { %>
-          <% labels.forEach(label=> { %>
-            <li class="nav-item">
-              <a class="nav-link <%= selectedLabel && selectedLabel.id === label.id ? 'active' : '' %>"
-                href="/emails/label/<%= label.id %>">
-                <i class="fas fa-circle me-2" style="font-size: 8px; color: #667eea;"></i>
-                <span>
-                  <%= label.name %>
-                </span>
-                <!-- <% if (label.emailCount> 0) { %>
+        <% if (typeof labels !=='undefined' && labels.length> 0) { %> <%
+        labels.forEach(label=> { %>
+        <li class="nav-item">
+          <a
+            class="nav-link <%= selectedLabel && selectedLabel.id === label.id ? 'active' : '' %>"
+            href="/emails/label/<%= label.id %>"
+          >
+            <i
+              class="fas fa-circle me-2"
+              style="font-size: 8px; color: #667eea"
+            ></i>
+            <span> <%= label.name %> </span>
+            <!-- <% if (label.emailCount> 0) { %>
                   <span class="badge bg-secondary rounded-pill ms-auto">
                     <%= label.emailCount %>
                   </span>
                   <% } %> -->
-              </a>
-            </li>
-            <% }); %>
-              <% } else { %>
-                <li class="nav-item">
-                  <div class="px-3 py-2 text-muted small">
-                    <i class="fas fa-info-circle me-1"></i>
-                    Chưa có danh mục nào
-                  </div>
-                </li>
-                <% } %>
+          </a>
+        </li>
+        <% }); %> <% } else { %>
+        <li class="nav-item">
+          <div class="px-3 py-2 text-muted small">
+            <i class="fas fa-info-circle me-1"></i>
+            Chưa có danh mục nào
+          </div>
+        </li>
+        <% } %>
       </ul>
     </div>
 
-    <hr>
+    <hr />
 
     <!-- Other Actions -->
     <ul class="nav flex-column">
-      <li class="nav-item">
-  <a class="nav-link <%= cp === 'emailsSystem' ? 'active' : '' %>" href="/emailsSystem">
-          <i class="fas fa-envelope me-2"></i>
-          <span>List Email System</span>
-        </a>
-      </li>
-
       <!-- Test Classification -->
       <li class="nav-item">
-  <a class="nav-link <%= cp === 'test' ? 'active' : '' %>" href="/test/classify">
+        <a
+          class="nav-link <%= cp === 'test' ? 'active' : '' %>"
+          href="/test/classify"
+        >
           <i class="fas fa-flask me-2"></i>
           <span>Test Classification</span>
         </a>
@@ -102,7 +111,10 @@
 
       <!-- Retrain Model -->
       <li class="nav-item">
-  <a class="nav-link <%= cp === 'retrain' ? 'active' : '' %>" href="/retrain">
+        <a
+          class="nav-link <%= cp === 'retrain' ? 'active' : '' %>"
+          href="/retrain"
+        >
           <i class="fas fa-sync-alt me-2"></i>
           <span>Retrain Model</span>
         </a>
@@ -146,7 +158,7 @@
 <style>
   .sidebar {
     min-height: calc(100vh - 56px);
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
     overflow-y: auto;
   }
 
