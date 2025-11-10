@@ -1,0 +1,278 @@
+<div class="container-fluid mt-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="fw-bold mb-1">
+            <i class="fas fa-flask me-2 text-warning"></i>
+            Test Email Classification
+          </h2>
+          <p class="text-muted mb-0">
+            Test the ML classification service by entering email content below
+          </p>
+        </div>
+        <div>
+          <a href="/dashboard" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-6 mb-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-edit me-2"></i>
+            Email Input
+          </h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="/test/classify">
+            <div class="mb-3">
+              <label for="title" class="form-label fw-bold">
+                Email Title / Subject
+                <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="title"
+                name="title"
+                placeholder="Enter email title..."
+                value="<%= result ? result.inputTitle : '' %>"
+                required
+              />
+              <small class="text-muted">The subject line of the email</small>
+            </div>
+            <div class="mb-3">
+              <label for="content" class="form-label fw-bold">
+                Email Content / Body
+                <span class="text-danger">*</span>
+              </label>
+              <textarea
+                class="form-control"
+                id="content"
+                name="content"
+                rows="8"
+                placeholder="Enter email content..."
+                required
+              >
+<%= result ? result.inputContent : '' %></textarea
+              >
+              <small class="text-muted">The main body of the email</small>
+            </div>
+            <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger" role="alert">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              <%= error %>
+            </div>
+            <% } %>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-brain me-2"></i>
+                Classify Email
+              </button>
+            </div>
+          </form>
+
+          <div class="mt-4">
+            <h6 class="fw-bold mb-3">Quick Test Samples:</h6>
+            <div class="d-grid gap-2">
+              <button
+                class="btn btn-sm btn-outline-secondary text-start"
+                onclick="fillSample1()"
+              >
+                <i class="fas fa-shield-alt me-2"></i>
+                Security Email Sample
+              </button>
+              <button
+                class="btn btn-sm btn-outline-secondary text-start"
+                onclick="fillSample2()"
+              >
+                <i class="fas fa-briefcase me-2"></i>
+                Work Email Sample
+              </button>
+              <button
+                class="btn btn-sm btn-outline-secondary text-start"
+                onclick="fillSample3()"
+              >
+                <i class="fas fa-ad me-2"></i>
+                Advertisement Sample
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-chart-bar me-2"></i>
+            Classification Result
+          </h5>
+        </div>
+        <div class="card-body">
+          <% if (result && result.success) { %>
+   
+          <div class="alert alert-success mb-4">
+            <i class="fas fa-check-circle me-2"></i>
+            Classification completed successfully!
+          </div>
+
+
+          <div class="mb-4">
+            <h6 class="text-muted mb-2">Predicted Category:</h6>
+            <h3 class="fw-bold text-primary mb-0">
+              <i class="fas fa-tag me-2"></i>
+              <%= result.labelName || 'Unknown' %>
+            </h3>
+          </div>
+
+
+          <div class="mb-4">
+            <h6 class="text-muted mb-2">Confidence Score:</h6>
+            <% const confidencePercent = (result.confidence * 100).toFixed(2);
+            %>
+            <div class="d-flex align-items-center">
+              <h3 class="fw-bold mb-0 me-3"><%= confidencePercent %>%</h3>
+              <div class="progress flex-grow-1" style="height: 30px">
+                <div
+                  class="progress-bar <%= result.confidence >= 0.7 ? 'bg-success' : result.confidence >= 0.5 ? 'bg-warning' : 'bg-danger' %>"
+                  role="progressbar"
+                  style="width: 0%"
+                  aria-valuenow="<%= confidencePercent %>"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  data-width="<%= confidencePercent %>"
+                >
+                  <%= confidencePercent %>%
+                </div>
+              </div>
+              <script>
+                document.querySelector(".progress-bar").style.width =
+                  document
+                    .querySelector(".progress-bar")
+                    .getAttribute("data-width") + "%";
+              </script>
+            </div>
+            <small class="text-muted">
+              <% if (result.confidence >= 0.7) { %>
+              <i class="fas fa-check-circle text-success"></i> High confidence
+              <% } else if (result.confidence >= 0.5) { %>
+              <i class="fas fa-exclamation-triangle text-warning"></i> Medium
+              confidence <% } else { %>
+              <i class="fas fa-times-circle text-danger"></i> Low confidence <%
+              } %>
+            </small>
+          </div>
+
+          <div class="card bg-light">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">Technical Details:</h6>
+              <table class="table table-sm table-borderless mb-0">
+                <tbody>
+                  <tr>
+                    <td class="text-muted">Database Label ID:</td>
+                    <td class="fw-bold"><%= result.labelId || 'N/A' %></td>
+                  </tr>
+                  <% if (result.mlLabelId !== undefined) { %>
+                  <tr>
+                    <td class="text-muted">ML Model Label ID:</td>
+                    <td class="fw-bold"><%= result.mlLabelId %></td>
+                  </tr>
+                  <% } %>
+                  <tr>
+                    <td class="text-muted">Label Name:</td>
+                    <td class="fw-bold"><%= result.labelName %></td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Confidence:</td>
+                    <td class="fw-bold"><%= result.confidence.toFixed(4) %></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <% } else if (result && !result.success) { %>
+  
+          <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>Classification Failed:</strong><br />
+            <%= result.error || 'Unknown error occurred' %>
+          </div>
+
+          <% } else { %>
+          <div class="text-center py-5">
+            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">No classification yet</h5>
+            <p class="text-muted">
+              Enter email content and click "Classify Email" to see results
+            </p>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm bg-light">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">
+            <i class="fas fa-info-circle me-2"></i>
+            About This Test Page
+          </h6>
+          <p class="mb-2">
+            This page allows you to test the email classification ML service
+            without affecting your actual emails.
+          </p>
+          <ul class="mb-0">
+            <li>
+              Enter any email title and content to see how the ML model
+              classifies it
+            </li>
+            <li>
+              The classification uses the same ML service as the main
+              application
+            </li>
+            <li>
+              Results are not saved to the database - this is for testing only
+            </li>
+            <li>
+              Try different types of emails to see how accurate the model is
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function fillSample1() {
+    document.getElementById("title").value = "Cảnh báo bảo mật tài khoản";
+    document.getElementById("content").value =
+      "Chúng tôi phát hiện hoạt động đăng nhập bất thường từ địa chỉ IP mới. Vui lòng xác nhận đây có phải là bạn không. Nếu không phải, hãy thay đổi mật khẩu ngay lập tức để bảo vệ tài khoản của bạn.";
+  }
+
+  function fillSample2() {
+    document.getElementById("title").value = "Họp nhóm dự án tuần này";
+    document.getElementById("content").value =
+      "Xin chào team, chúng ta sẽ có cuộc họp vào thứ 5 lúc 10h sáng để thảo luận về tiến độ dự án. Vui lòng chuẩn bị báo cáo công việc của mình. Meeting room: Phòng họp A, tầng 3.";
+  }
+
+  function fillSample3() {
+    document.getElementById("title").value =
+      "Giảm giá 50% - Khuyến mãi đặc biệt";
+    document.getElementById("content").value =
+      "Chương trình khuyến mãi lớn nhất trong năm! Giảm giá lên đến 50% cho tất cả sản phẩm. Mua ngay hôm nay để nhận ưu đãi tốt nhất. Số lượng có hạn, nhanh tay đặt hàng!";
+  }
+</script>

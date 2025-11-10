@@ -1,0 +1,211 @@
+<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+  <div class="position-sticky pt-3">
+    <% var cp = (typeof currentPage !== 'undefined') ? currentPage : ''; %>
+    <!-- Main Navigation -->
+    <ul class="nav flex-column mb-3">
+      <!-- Dashboard -->
+      <li class="nav-item">
+  <a class="nav-link <%= cp === 'dashboard' ? 'active' : '' %>" href="/dashboard">
+          <i class="fas fa-home me-2"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+
+      <!-- All Emails -->
+      <li class="nav-item">
+  <a class="nav-link <%= cp === 'emails' && !selectedLabel ? 'active' : '' %>" href="/emails">
+          <i class="fas fa-inbox me-2"></i>
+          <span>Tất cả Email</span>
+          <% if (typeof stats !=='undefined' && stats.unread> 0) { %>
+            <span class="badge bg-primary rounded-pill ms-auto">
+              <%= stats.unread %>
+            </span>
+            <% } %>
+        </a>
+      </li>
+
+      <!-- Important Emails -->
+      <li class="nav-item">
+  <a class="nav-link <%= cp === 'ImportantEmails' ? 'active' : '' %>" href="/emails/important">
+          <i class="fas fa-star me-2 text-warning"></i>
+          <span>Quan trọng</span>
+          <% if (typeof stats !=='undefined' && stats.important> 0) { %>
+            <span class="badge bg-warning rounded-pill ms-auto">
+              <%= stats.important %>
+            </span>
+            <% } %>
+        </a>
+      </li>
+    </ul>
+
+    <hr>
+
+    <!-- Labels Section -->
+    <div class="sidebar-section">
+      <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-2 text-muted">
+        <span>
+          <i class="fas fa-tags me-2"></i>
+          Danh mục
+        </span>
+        <!-- <a href="/labels/manage" class="text-decoration-none" title="Quản lý danh mục">
+          <i class="fas fa-cog"></i>
+        </a> -->
+      </h6>
+
+      <ul class="nav flex-column mb-3">
+        <% if (typeof labels !=='undefined' && labels.length> 0) { %>
+          <% labels.forEach(label=> { %>
+            <li class="nav-item">
+              <a class="nav-link <%= selectedLabel && selectedLabel.id === label.id ? 'active' : '' %>"
+                href="/emails/label/<%= label.id %>">
+                <i class="fas fa-circle me-2" style="font-size: 8px; color: #667eea;"></i>
+                <span>
+                  <%= label.name %>
+                </span>
+                <!-- <% if (label.emailCount> 0) { %>
+                  <span class="badge bg-secondary rounded-pill ms-auto">
+                    <%= label.emailCount %>
+                  </span>
+                  <% } %> -->
+              </a>
+            </li>
+            <% }); %>
+              <% } else { %>
+                <li class="nav-item">
+                  <div class="px-3 py-2 text-muted small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Chưa có danh mục nào
+                  </div>
+                </li>
+                <% } %>
+      </ul>
+    </div>
+
+    <hr>
+
+    <!-- Other Actions -->
+    <ul class="nav flex-column">
+      <li class="nav-item">
+  <a class="nav-link <%= cp === 'emailsSystem' ? 'active' : '' %>" href="/emailsSystem">
+          <i class="fas fa-envelope me-2"></i>
+          <span>List Email System</span>
+        </a>
+      </li>
+
+      <!-- Test Classification -->
+      <li class="nav-item">
+  <a class="nav-link <%= cp === 'test' ? 'active' : '' %>" href="/test/classify">
+          <i class="fas fa-flask me-2"></i>
+          <span>Test Classification</span>
+        </a>
+      </li>
+
+      <!-- Retrain Model -->
+      <li class="nav-item">
+  <a class="nav-link <%= cp === 'retrain' ? 'active' : '' %>" href="/retrain">
+          <i class="fas fa-sync-alt me-2"></i>
+          <span>Retrain Model</span>
+        </a>
+      </li>
+
+      <!-- Datasets -->
+      <li class="nav-item">
+        <a class="nav-link" href="/datasets">
+          <i class="fas fa-database me-2"></i>
+          <span>Dataset</span>
+        </a>
+      </li>
+
+      <!-- ML Models -->
+      <li class="nav-item">
+        <a class="nav-link" href="/models">
+          <i class="fas fa-brain me-2"></i>
+          <span>ML Models</span>
+        </a>
+      </li>
+
+      <!-- Settings -->
+      <li class="nav-item">
+        <a class="nav-link" href="/settings">
+          <i class="fas fa-cog me-2"></i>
+          <span>Cài đặt</span>
+        </a>
+      </li>
+    </ul>
+
+    <!-- Sync Button -->
+    <!-- <div class="p-3 mt-auto border-top">
+      <button class="btn btn-primary w-100 btn-sm" id="syncEmailsBtn">
+        <i class="fas fa-sync-alt me-2"></i>
+        Đồng bộ Email
+      </button>
+    </div> -->
+  </div>
+</nav>
+
+<style>
+  .sidebar {
+    min-height: calc(100vh - 56px);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    overflow-y: auto;
+  }
+
+  .sidebar .nav-link {
+    font-weight: 500;
+    color: #333;
+    padding: 10px 16px;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    margin: 2px 8px;
+    display: flex;
+    align-items: center;
+    text-align: left;
+  }
+
+  .sidebar .nav-link:hover {
+    background-color: #f0f2f5;
+    color: #667eea;
+  }
+
+  .sidebar .nav-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white !important;
+  }
+
+  .sidebar .nav-link.active i,
+  .sidebar .nav-link.active span {
+    color: white !important;
+  }
+
+  .sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .sidebar .nav-link span {
+    flex: 1;
+    text-align: left;
+  }
+
+  .sidebar .nav-link .badge {
+    margin-left: auto;
+  }
+
+  .sidebar-heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+  }
+
+  .sidebar-section {
+    margin-bottom: 1rem;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+</style>

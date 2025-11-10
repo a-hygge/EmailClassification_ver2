@@ -1,0 +1,248 @@
+<link rel="stylesheet" href="/css/retrain.css">
+
+<div class="container-fluid mt-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="fw-bold mb-1">
+            <i class="fas fa-sync-alt me-2 text-primary"></i>
+            Retrain Model - Step 3
+          </h2>
+          <p class="text-muted mb-0">
+            Kết quả huấn luyện
+          </p>
+        </div>
+        <div>
+          <a href="/dashboard" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Quay lại Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="text-center flex-fill">
+              <div class="step-circle completed">
+                <i class="fas fa-check"></i>
+              </div>
+              <p class="mb-0 mt-2 text-success fw-bold">Chọn mẫu</p>
+            </div>
+            <div class="step-line completed"></div>
+            <div class="text-center flex-fill">
+              <div class="step-circle completed">
+                <i class="fas fa-check"></i>
+              </div>
+              <p class="mb-0 mt-2 text-success fw-bold">Cấu hình</p>
+            </div>
+            <div class="step-line completed"></div>
+            <div class="text-center flex-fill">
+              <div class="step-circle active">3</div>
+              <p class="mb-0 mt-2 fw-bold text-primary">Kết quả</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-12">
+              <h5 class="mb-3">
+                <i class="fas fa-chart-bar me-2"></i>
+                Kết quả huấn luyện
+              </h5>
+            </div>
+          </div>
+
+          <div id="trainingLoading" class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+              <span class="visually-hidden">Training...</span>
+            </div>
+            <h5 class="mb-2">Đang huấn luyện mô hình...</h5>
+            <p class="text-muted mb-4">Vui lòng đợi, quá trình này có thể mất vài phút</p>
+            
+            <!-- Progress Bar -->
+            <div class="container" style="max-width: 600px;">
+              <div class="progress" style="height: 30px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                     id="trainingProgress" role="progressbar" 
+                     style="width: 0%">
+                  <span id="progressText">0%</span>
+                </div>
+              </div>
+              <p class="mt-2 text-muted">
+                <span id="epochText">Epoch 0/10</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Results Content (hidden initially) -->
+          <div id="resultsContent" style="display: none;">
+            <!-- Success Alert -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="alert alert-success d-flex align-items-center">
+                  <i class="fas fa-check-circle me-2 fs-4"></i>
+                  <div>
+                    <strong>Huấn luyện hoàn tất!</strong>
+                    <p class="mb-0">Mô hình đã được huấn luyện thành công với dữ liệu của bạn.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Metrics Cards -->
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body text-center">
+                    <i class="fas fa-bullseye text-primary fs-2 mb-2"></i>
+                    <h6 class="text-muted mb-1">Accuracy</h6>
+                    <h3 class="mb-0" id="metricAccuracy">-</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body text-center">
+                    <i class="fas fa-crosshairs text-success fs-2 mb-2"></i>
+                    <h6 class="text-muted mb-1">Precision</h6>
+                    <h3 class="mb-0" id="metricPrecision">-</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body text-center">
+                    <i class="fas fa-chart-line text-info fs-2 mb-2"></i>
+                    <h6 class="text-muted mb-1">Recall</h6>
+                    <h3 class="mb-0" id="metricRecall">-</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body text-center">
+                    <i class="fas fa-star text-warning fs-2 mb-2"></i>
+                    <h6 class="text-muted mb-1">F1 Score</h6>
+                    <h3 class="mb-0" id="metricF1">-</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-header bg-white">
+                    <h6 class="mb-0">
+                      <i class="fas fa-chart-area me-2"></i>
+                      Training & Validation Loss
+                    </h6>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="lossChart"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-header bg-white">
+                    <h6 class="mb-0">
+                      <i class="fas fa-chart-line me-2"></i>
+                      Training & Validation Accuracy
+                    </h6>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="accuracyChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row">
+              <div class="col-12">
+                <div class="d-flex justify-content-between">
+                  <button class="btn btn-outline-secondary" onclick="trainAgain()">
+                    <i class="fas fa-redo me-2"></i>
+                    Huấn luyện lại
+                  </button>
+                  <button class="btn btn-success btn-lg" id="saveModelBtn" onclick="saveTrainedModel()">
+                    <i class="fas fa-save me-2"></i>
+                    Lưu mô hình
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Include custom JavaScript -->
+<script src="/js/retrain-results.js"></script>
+
+<style>
+.step-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #6c757d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.step-circle.active {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.step-circle.completed {
+  background-color: #198754;
+  color: white;
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background-color: #e9ecef;
+  margin: 0 1rem;
+}
+
+.step-line.completed {
+  background-color: #198754;
+}
+</style>
+
+<script>
+  // Get jobId from URL parameter or session
+  const urlParams = new URLSearchParams(window.location.search);
+  const jobId = urlParams.get('jobId') || '<%= jobId %>';
+  
+  // Store jobId globally for use in retrain-results.js
+  if (jobId && jobId !== 'null') {
+    window.currentJobId = parseInt(jobId);
+  }
+</script>
+

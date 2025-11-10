@@ -1,0 +1,54 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+      <div class="error-template">
+        <h1 class="display-1 text-danger">
+          <i class="fas fa-exclamation-triangle"></i>
+        </h1>
+        <h2 class="mb-4">Oops! Có lỗi xảy ra</h2>
+        <div class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">
+            <%= typeof message !=='undefined' ? message : 'Đã xảy ra lỗi không xác định' %>
+          </h4>
+          <% if (typeof error !=='undefined' && error) { %>
+            <hr>
+            <p class="mb-0 small text-start">
+              <strong>Chi tiết lỗi:</strong><br>
+              <%= error.message %>
+            </p>
+            <% if (error.stack) { %>
+              <pre class="text-start mt-2 small" style="max-height: 200px; overflow-y: auto;">
+                <%= error.stack %>
+              </pre>
+              <% } %>
+                <% } %>
+        </div>
+        <div class="error-actions mt-4">
+          <a href="/dashboard" class="btn btn-primary btn-lg me-2">
+            <i class="fas fa-home me-2"></i>
+            Về Dashboard
+          </a>
+          <a href="javascript:history.back()" class="btn btn-secondary btn-lg">
+            <i class="fas fa-arrow-left me-2"></i>
+            Quay lại
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .error-template {
+    padding: 40px 15px;
+  }
+
+  .error-actions {
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+
+  .display-1 {
+    font-size: 8rem;
+  }
+</style>

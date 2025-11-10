@@ -1,0 +1,178 @@
+
+<div class="container-fluid mt-4">
+  <div class="row mb-3">
+    <div class="col-12">
+      <a href="/emails" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Quay lại danh sách
+      </a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom py-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <h3 class="mb-3 fw-bold">
+                <%= email.title || 'No Subject' %>
+              </h3>
+              <div class="row g-3">
+                <% if (email.sender) { %>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-circle bg-primary text-white me-3">
+                      <%= email.sender.charAt(0).toUpperCase() %>
+                    </div>
+                    <div>
+                      <small class="text-muted d-block">Người gửi</small>
+                      <strong><%= email.sender %></strong>
+                    </div>
+                  </div>
+                </div>
+                <% } %>
+
+                <% if (email.receiver) { %>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-circle bg-success text-white me-3">
+                      <%= email.receiver.charAt(0).toUpperCase() %>
+                    </div>
+                    <div>
+                      <small class="text-muted d-block">Người nhận</small>
+                      <strong><%= email.receiver %></strong>
+                    </div>
+                  </div>
+                </div>
+                <% } %>
+
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-tag text-info me-3 fs-4"></i>
+                    <div>
+                      <small class="text-muted d-block">Danh mục</small>
+                      <% if (email.labels && email.labels.length > 0) { %>
+                        <% email.labels.forEach((label, idx) => { %>
+                          <span class="badge bg-<%= ['primary', 'success', 'info', 'warning', 'danger'][label.id % 5] %> fs-6 me-1 mb-1">
+                            <%= label.name %>
+                          </span>
+                        <% }); %>
+                      <% } else { %>
+                        <span class="badge bg-secondary fs-6">Chưa phân loại</span>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-hashtag text-secondary me-3 fs-4"></i>
+                    <div>
+                      <small class="text-muted d-block">Email ID</small>
+                      <strong>#<%= email.id %></strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ms-3">
+              <button class="btn btn-outline-danger" id="deleteEmail">
+                <i class="fas fa-trash me-1"></i>
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-4">
+          <div class="email-content">
+            <h5 class="mb-3 text-muted">Nội dung email:</h5>
+            <div class="border-start border-4 border-primary ps-4 py-3">
+              <p class="mb-0" style="white-space: pre-wrap; line-height: 1.8;">
+                <%= email.content || 'No content' %>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer bg-light">
+          <div class="row">
+            <div class="col-md-12">
+              <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                <% if (email.sender) { %>
+                  Email từ: <strong><%= email.sender %></strong>
+                  <% if (email.receiver) { %>
+                    → <strong><%= email.receiver %></strong>
+                  <% } %>
+                <% } else { %>
+                  Email trong hệ thống
+                <% } %>
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .avatar-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  .email-content {
+    font-size: 1.05rem;
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const deleteBtn = document.getElementById('deleteEmail');
+
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async function() {
+        if (!confirm('Bạn có chắc chắn muốn xóa email này?')) {
+          return;
+        }
+        const emailId = <%= email.id %>;
+        const deleteUrl = `/emails/${emailId}`;
+        const redirectUrl = '/emails';
+
+        try {
+          const response = await fetch(deleteUrl, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            alert(result.message || 'Email đã được xóa thành công');
+            window.location.href = redirectUrl;
+          } else {
+            alert('Lỗi: ' + (result.message || 'Không thể xóa email'));
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Có lỗi xảy ra khi xóa email');
+        }
+      });
+    }
+  });
+</script>

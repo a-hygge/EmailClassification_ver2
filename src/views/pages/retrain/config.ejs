@@ -1,0 +1,221 @@
+<!-- Custom CSS -->
+<link rel="stylesheet" href="/css/retrain.css">
+
+<!-- Configuration Page -->
+<div class="container-fluid mt-4">
+  <!-- Page Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="fw-bold mb-1">
+            <i class="fas fa-sync-alt me-2 text-primary"></i>
+            Retrain Model - Step 2
+          </h2>
+          <p class="text-muted mb-0">
+            Cấu hình huấn luyện
+          </p>
+        </div>
+        <div>
+          <a href="/dashboard" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Quay lại Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="text-center flex-fill">
+              <div class="step-circle completed">
+                <i class="fas fa-check"></i>
+              </div>
+              <p class="mb-0 mt-2 text-success fw-bold">Chọn mẫu</p>
+            </div>
+            <div class="step-line completed"></div>
+            <div class="text-center flex-fill">
+              <div class="step-circle active">2</div>
+              <p class="mb-0 mt-2 fw-bold text-primary">Cấu hình</p>
+            </div>
+            <div class="step-line"></div>
+            <div class="text-center flex-fill">
+              <div class="step-circle">3</div>
+              <p class="mb-0 mt-2 text-muted">Kết quả</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <!-- Configuration Content -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <h5 class="mb-3">
+                <i class="fas fa-sliders-h me-2"></i>
+                Cấu hình huấn luyện
+              </h5>
+              <p class="text-muted">
+                Chọn loại mô hình và cấu hình các siêu tham số cho quá trình huấn luyện.
+              </p>
+            </div>
+          </div>
+
+          <!-- Configuration Form -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card border-0 bg-light mb-4">
+                <div class="card-body">
+                  <h6 class="card-title mb-3">
+                    <i class="fas fa-brain me-2"></i>
+                    Mô hình
+                  </h6>
+
+                  <!-- Hiển thị khi retrain model cũ -->
+                  <div id="retrainModelInfo" style="display: none;">
+                    <div class="alert alert-success mb-0">
+                      <h6 class="alert-heading"><i class="fas fa-check-circle me-2"></i>Model đã chọn</h6>
+                      <p class="mb-1"><strong>Version:</strong> <span id="retrainModelVersion"></span></p>
+                      <p class="mb-1"><strong>Type:</strong> <span id="retrainModelType"></span></p>
+                      <p class="mb-0"><strong>Accuracy:</strong> <span id="retrainModelAccuracy"></span>%</p>
+                    </div>
+                  </div>
+
+                  <!-- Hiển thị khi train model mới -->
+                  <div id="newModelSelect">
+                    <div class="mb-3">
+                      <label for="modelType" class="form-label">Chọn mô hình</label>
+                      <select class="form-select" id="modelType">
+                        <option value="">Đang tải mô hình...</option>
+                        <!-- Options will be populated by JavaScript from database -->
+                      </select>
+                      <div class="form-text">
+                        Chọn mô hình để huấn luyện lại. Độ chính xác hiện tại được hiển thị bên cạnh tên mô hình.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card border-0 bg-light mb-4">
+                <div class="card-body">
+                  <h6 class="card-title mb-3">
+                    <i class="fas fa-cogs me-2"></i>
+                    Siêu tham số
+                  </h6>
+                  
+                  <div class="mb-3">
+                    <label for="learningRate" class="form-label">Learning Rate</label>
+                    <input type="number" class="form-control" id="learningRate" 
+                           value="0.001" step="0.0001" min="0.0001" max="1">
+                    <div class="form-text">Tốc độ học của mô hình (0.0001 - 1)</div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="epochs" class="form-label">Epochs</label>
+                    <input type="number" class="form-control" id="epochs" 
+                           value="10" min="1" max="100">
+                    <div class="form-text">Số vòng lặp huấn luyện (1 - 100)</div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="batchSize" class="form-label">Batch Size</label>
+                    <input type="number" class="form-control" id="batchSize" 
+                           value="32" min="1" max="256">
+                    <div class="form-text">Kích thước lô dữ liệu (1 - 256)</div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="randomState" class="form-label">Random State</label>
+                    <input type="number" class="form-control" id="randomState" 
+                           value="42" min="0">
+                    <div class="form-text">Giá trị khởi tạo ngẫu nhiên</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Samples Summary -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="alert alert-success d-flex align-items-center">
+                <i class="fas fa-check-circle me-2"></i>
+                <span>Số mẫu đã chọn: <strong id="selectedSamplesCount">0</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-secondary" onclick="backToSamples()">
+                  <i class="fas fa-arrow-left me-2"></i>
+                  Quay lại
+                </button>
+                <button class="btn btn-primary btn-lg" id="retrainBtn" onclick="startRetraining()">
+                  <i class="fas fa-play me-2"></i>
+                  Bắt đầu huấn luyện
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include custom JavaScript -->
+<script src="/js/retrain-config.js"></script>
+
+<style>
+.step-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #6c757d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.step-circle.active {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.step-circle.completed {
+  background-color: #198754;
+  color: white;
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background-color: #e9ecef;
+  margin: 0 1rem;
+}
+
+.step-line.completed {
+  background-color: #198754;
+}
+</style>
+

@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+tensorflow
+joblib
+numpy
+scikit-learn
+content-size-limit-asgi
+pymysql

@@ -1,0 +1,218 @@
+#retrainTabs .nav-link {
+  color: #6c757d;
+  font-weight: 500;
+  border: none;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+#retrainTabs .nav-link:hover:not(.disabled) {
+  color: #495057;
+  border-bottom-color: #dee2e6;
+}
+
+#retrainTabs .nav-link.active {
+  color: #0d6efd;
+  border-bottom-color: #0d6efd;
+  background-color: transparent;
+}
+
+#retrainTabs .nav-link.disabled {
+  color: #adb5bd;
+  cursor: not-allowed;
+  opacity: 0.6;
+  position: relative;
+}
+
+#retrainTabs .nav-link.disabled i {
+  opacity: 0.5;
+}
+
+/* Add lock icon to disabled tabs */
+#retrainTabs .nav-link.disabled::after {
+  content: '\f023';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  margin-left: 8px;
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+/* Completed step indicator */
+#retrainTabs .nav-link.completed:not(.active)::before {
+  content: '\f00c';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  margin-right: 8px;
+  color: #28a745;
+  font-size: 0.9em;
+}
+
+/* Sample Selection Table */
+#samplesTable {
+  font-size: 0.95rem;
+}
+
+#samplesTable thead th {
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+#samplesTable tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+#samplesTable tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+#samplesTable .sample-checkbox {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+/* Configuration Form */
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Metrics Cards */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Progress Bar */
+.progress {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.progress-bar {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Charts */
+canvas {
+  max-height: 300px;
+}
+
+/* Buttons */
+.btn {
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Loading Spinner */
+.spinner-border {
+  animation: spinner-border 0.75s linear infinite;
+}
+
+/* Alerts */
+.alert {
+  border-radius: 0.5rem;
+  border: none;
+}
+
+.alert-info {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.alert-success {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+/* Badges */
+.badge {
+  font-weight: 500;
+  padding: 0.35em 0.65em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #samplesTable {
+    font-size: 0.85rem;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  canvas {
+    max-height: 200px;
+  }
+}
+
+/* Custom Scrollbar */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-pane {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Metric Cards Icons */
+.card-body i.fs-2 {
+  opacity: 0.8;
+}
+
+.card-body:hover i.fs-2 {
+  opacity: 1;
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+

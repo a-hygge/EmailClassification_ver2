@@ -1,0 +1,131 @@
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top"
+  style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center fw-bold" href="<%= user ? '/dashboard' : '/' %>">
+      <i class="fas fa-envelope-open-text me-2 fs-4"></i>
+      Email Classification
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <% if (user) { %>
+        <!-- Search Form -->
+        <form class="d-flex mx-auto" style="max-width: 500px; width: 100%;" action="/emails/search" method="GET">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="fas fa-search text-muted"></i>
+            </span>
+            <input class="form-control border-start-0 ps-0" type="search" name="q" placeholder="Tìm kiếm email...">
+          </div>
+        </form>
+
+        <!-- Right Menu -->
+        <ul class="navbar-nav ms-auto align-items-center">
+          <!-- Compose Button -->
+          <li class="nav-item me-2">
+            <a href="/emails/compose" class="btn btn-warning btn-sm">
+              <i class="fas fa-pen me-1"></i> Soạn email
+            </a>
+          </li>
+
+          <!-- Notifications -->
+          <li class="nav-item dropdown me-3">
+            <a class="nav-link position-relative" href="#" id="notificationDropdown" data-bs-toggle="dropdown">
+              <i class="fas fa-bell fs-5"></i>
+              <% if (typeof stats !=='undefined' && stats.unread> 0) { %>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  <%= stats.unread %>
+                </span>
+                <% } %>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 300px;">
+              <li>
+                <h6 class="dropdown-header">Thông báo</h6>
+              </li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li>
+                <a class="dropdown-item py-2" href="/emails?unread=1">
+                  <div class="d-flex align-items-start">
+                    <i class="fas fa-envelope text-primary me-3 mt-1"></i>
+                    <div>
+                      <strong class="d-block">Email mới</strong>
+                      <% var unreadCount = (typeof stats !== 'undefined' && stats.unread) ? stats.unread : 0; %>
+                      <small class="text-muted">Bạn có <%= unreadCount %> email chưa đọc</small>
+                    </div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- User Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown"
+              data-bs-toggle="dropdown">
+              <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center me-2"
+                style="width: 35px; height: 35px; font-weight: bold;">
+                <%= user.username.charAt(0).toUpperCase() %>
+              </div>
+              <span class="d-none d-md-inline">
+                <%= user.username %>
+              </span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li>
+                <div class="dropdown-header">
+                  <strong>
+                    <%= user.username %>
+                  </strong>
+                  <% if (user.email) { %>
+                    <br><small class="text-muted">
+                      <%= user.email %>
+                    </small>
+                    <% } %>
+                </div>
+              </li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <!-- <li>
+                <a class="dropdown-item" href="/profile">
+                  <i class="fas fa-user me-2"></i> Hồ sơ
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="/settings">
+                  <i class="fas fa-cog me-2"></i> Cài đặt
+                </a>
+              </li> -->
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li>
+                <a class="dropdown-item text-danger" href="/auth/logout">
+                  <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <% } else { %>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/auth/login">
+                <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/auth/register">
+                <i class="fas fa-user-plus me-1"></i> Đăng ký
+              </a>
+            </li>
+          </ul>
+          <% } %>
+    </div>
+  </div>
+</nav>

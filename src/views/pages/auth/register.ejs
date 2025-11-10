@@ -1,0 +1,95 @@
+<div class="auth-card">
+  <div class="auth-header">
+    <img src="/images/logo.png" alt="Logo" class="auth-logo">
+    <h2 class="auth-title">Đăng ký</h2>
+    <p class="auth-subtitle">Tạo tài khoản mới</p>
+  </div>
+
+  <!-- Error Message -->
+  <% if (error) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-circle"></i>
+      <%= error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% } %>
+
+      <form action="/auth/register" method="POST" class="auth-form">
+        <!-- Username -->
+        <div class="form-group mb-3">
+          <label for="username" class="form-label">
+            <i class="fas fa-user"></i> Username
+          </label>
+          <input type="text" class="form-control <%= errors.username ? 'is-invalid' : '' %>" id="username"
+            name="username" placeholder="username" value="<%= oldInput.username || '' %>" required>
+          <% if (errors.username) { %>
+            <div class="invalid-feedback">
+              <%= errors.username %>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Email -->
+        <!-- <div class="form-group mb-3">
+          <label for="email" class="form-label">
+            <i class="fas fa-envelope"></i> Email
+          </label>
+          <input type="email" class="form-control <%= errors.email ? 'is-invalid' : '' %>" id="email" name="email"
+            placeholder="example@email.com" value="<%= oldInput.email || '' %>" required>
+          <% if (errors.email) { %>
+            <div class="invalid-feedback">
+              <%= errors.email %>
+            </div>
+            <% } %>
+        </div> -->
+
+        <!-- Full Name -->
+        <!-- <div class="form-group mb-3">
+          <label for="full_name" class="form-label">
+            <i class="fas fa-id-card"></i> Họ và tên
+          </label>
+          <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Nguyễn Văn A"
+            value="<%= oldInput.full_name || '' %>">
+        </div> -->
+
+        <!-- Password -->
+        <div class="form-group mb-3">
+          <label for="password" class="form-label">
+            <i class="fas fa-lock"></i> Mật khẩu
+          </label>
+          <input type="password" class="form-control <%= errors.password ? 'is-invalid' : '' %>" id="password"
+            name="password" placeholder="Tối thiểu 6 ký tự" required>
+          <% if (errors.password) { %>
+            <div class="invalid-feedback">
+              <%= errors.password %>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group mb-4">
+          <label for="confirm_password" class="form-label">
+            <i class="fas fa-lock"></i> Xác nhận mật khẩu
+          </label>
+          <input type="password" class="form-control <%= errors.confirm_password ? 'is-invalid' : '' %>"
+            id="confirm_password" name="confirm_password" placeholder="Nhập lại mật khẩu" required>
+          <% if (errors.confirm_password) { %>
+            <div class="invalid-feedback">
+              <%= errors.confirm_password %>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-auth w-100">
+          <i class="fas fa-user-plus"></i> Đăng ký
+        </button>
+      </form>
+
+      <!-- Login Link -->
+      <div class="auth-footer">
+        <p>Đã có tài khoản?
+          <a href="/auth/login">Đăng nhập ngay</a>
+        </p>
+      </div>
+</div>

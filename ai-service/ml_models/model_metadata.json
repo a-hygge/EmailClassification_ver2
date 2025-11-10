@@ -1,0 +1,29 @@
+{
+  "max_words": 10000,
+  "max_len": 200,
+  "label_names": [
+    "Bảo mật",
+    "Công việc",
+    "Gia đình",
+    "Giao dịch",
+    "Học tập",
+    "Quảng cáo",
+    "Spam"
+  ],
+  "num_labels": 7,
+  "train_samples": 4858,
+  "val_samples": 1038,
+  "test_samples": 1041,
+  "test_metrics": {
+    "loss": 0.2119523137807846,
+    "binary_accuracy": 0.9081926345825195,
+    "auc": 0.9476250410079956,
+    "precision": 0.8838920593261719,
+    "recall": 0.6722636818885803,
+    "hamming_loss": 0.09180732811856732,
+    "subset_accuracy": 0.5571565802113353,
+    "f1_macro": 0.7691687466498117,
+    "f1_micro": 0.7636877428470505,
+    "f1_weighted": 0.7614431295717555
+  }
+}

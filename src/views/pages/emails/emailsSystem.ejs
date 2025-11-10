@@ -1,0 +1,340 @@
+<!-- Content Wrapper -->
+<div class="container-fluid mt-4">
+  <!-- Toast Notification -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="deleteToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+      aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="fas fa-check-circle me-2"></i>
+          <span id="toastMessage">Đã xóa email thành công!</span>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+          aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="fw-bold mb-1">
+            <i class="fas fa-inbox me-2 text-primary"></i>
+            Tất cả Email Hệ Thống
+          </h2>
+          <p class="text-muted mb-0">
+            <small>
+              Tổng số: <strong id="totalEmailsCount">
+                <%= pagination.totalEmails %>
+              </strong> email
+            </small>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email List -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <!-- Toolbar -->
+        <div class="card-header bg-white border-0 py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <input type="checkbox" class="form-check-input me-3" id="selectAll">
+              <div class="btn-group" role="group">
+                <!-- <button class="btn btn-sm btn-outline-secondary" title="Đánh dấu đã đọc">
+                  <i class="fas fa-envelope-open"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" title="Đánh dấu quan trọng">
+                  <i class="fas fa-star"></i>
+                </button> -->
+                <button class="btn btn-sm btn-outline-danger" title="Xóa">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="d-flex align-items-center">
+              <span class="text-muted small me-3">
+                Trang <%= pagination.currentPage %> / <%= pagination.totalPages %>
+              </span>
+              <div class="btn-group" role="group">
+                <a href="?page=<%= pagination.currentPage - 1 %>"
+                  class="btn btn-sm btn-outline-secondary <%= pagination.currentPage === 1 ? 'disabled' : '' %>">
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+                <a href="?page=<%= pagination.currentPage + 1 %>"
+                  class="btn btn-sm btn-outline-secondary <%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email Table -->
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="bg-light">
+                <tr>
+                  <th class="border-0 ps-4" style="width: 40px;"></th>
+                  <th class="border-0" style="width: 50px;"></th>
+                  <th class="border-0">Người gửi</th>
+                  <th class="border-0">Người nhận</th>
+                  <th class="border-0">Tiêu đề</th>
+                  <th class="border-0">Danh mục</th>
+                  <th class="border-0">Thời gian</th>
+                  <th class="border-0 text-end pe-4">Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (emails && emails.length> 0) { %>
+                  <% emails.forEach(recipient=> {
+                    const email = recipient.email || recipient;
+                    %>
+                    <tr class="email-row <%= email.is_read ? '' : 'table-primary bg-opacity-10' %>"
+                      data-email-id="<%= email.id %>">
+                      <td class="ps-4 align-middle">
+                        <input type="checkbox" class="form-check-input email-checkbox" value="<%= email.id %>">
+                      </td>
+                      <td class="align-middle">
+                        <% if (!email.is_read) { %>
+                          <i class="fas fa-circle text-primary" style="font-size: 8px;"></i>
+                          <% } %>
+                      </td>
+                      <td class="align-middle">
+                        <div class="d-flex align-items-center">
+                          <div class="avatar-circle me-2">
+                            <%= email.user?.username ? email.user?.username.charAt(0).toUpperCase() : 'U' %>
+                          </div>
+                          <div>
+                            <div>
+                              <%= email.user?.username || 'Unknown' %>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="align-middle">
+                        <div class="d-flex align-items-center">
+                          <div class="avatar-circle me-2 bg-success">
+                            <%= recipient.user?.username ? recipient.user?.username.charAt(0).toUpperCase() : 'R' %>
+                          </div>
+                          <div>
+                            <div>
+                              <%= recipient.user?.username || 'Recipient' %>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="align-middle">
+                        <div class="text-truncate" style="max-width: 400px;">
+                          <a href="/emailsSystem/<%= email.id %>" class="text-decoration-none text-dark">
+                            <%= email.title || 'No Subject' %>
+                          </a>
+                          <% if (email.body) { %>
+                            <br>
+                            <small class="text-muted">
+                              <%= email.body.substring(0, 50) %>...
+                            </small>
+                            <% } %>
+                        </div>
+                      </td>
+                      <td class="align-middle">
+                        <% if (email.labels && email.labels.length > 0) { %>
+                          <% email.labels.forEach((label, idx) => { %>
+                            <span class="badge bg-<%= ['primary', 'success', 'info', 'warning', 'danger'][label.id % 5] %> me-1 mb-1">
+                              <i class="fas fa-tag me-1"></i>
+                              <%= label.name %>
+                            </span>
+                          <% }); %>
+                        <% } else { %>
+                          <span class="badge bg-secondary">
+                            <i class="fas fa-question me-1"></i>
+                            Chưa phân loại
+                          </span>
+                        <% } %>
+                      </td>
+                      <td class="align-middle">
+                        <small class="text-muted">
+                          <%= recipient.sendTime ? new Date(recipient.sendTime).toLocaleDateString('vi-VN', {
+                            day: '2-digit' , month: '2-digit' , year: 'numeric' , hour: '2-digit' , minute: '2-digit' })
+                            : '' %>
+                        </small>
+                      </td>
+                      <td class="align-middle text-end pe-4">
+                        <div class="btn-group" role="group">
+                          <a href="/emailsSystem/<%= email.id %>" class="btn btn-sm btn-outline-primary"
+                            title="Xem chi tiết">
+                            <i class="fas fa-eye"></i>
+                          </a>
+                          <!-- <button class="btn btn-sm btn-outline-warning toggle-important"
+                            data-email-id="<%= email.id %>"
+                            title="<%= recipient.isImportant ? 'Bỏ đánh dấu quan trọng' : 'Đánh dấu quan trọng' %>">
+                            <i class="<%= recipient.isImportant ? 'fas' : 'far' %> fa-star"></i>
+                          </button> -->
+                          <button class="btn btn-sm btn-outline-danger delete-email" data-email-id="<%= email.id %>"
+                            title="Xóa">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <% }); %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="8" class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
+                            <p class="text-muted mb-2 h5">Chưa có email nào</p>
+                          </td>
+                        </tr>
+                        <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pagination Footer -->
+        <% if (emails && emails.length> 0) { %>
+          <div class="card-footer bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted" id="paginationSummary">
+                Hiển thị <%= (pagination.currentPage - 1) * 20 + 1 %> -
+                  <%= Math.min(pagination.currentPage * 20, pagination.totalEmails) %>
+                    trong tổng số <%= pagination.totalEmails %> email
+              </span>
+              <nav>
+                <ul class="pagination mb-0">
+                  <li class="page-item <%= pagination.currentPage === 1 ? 'disabled' : '' %>">
+                    <a class="page-link" href="?page=<%= pagination.currentPage - 1 %>">
+                      <i class="fas fa-chevron-left"></i>
+                    </a>
+                  </li>
+
+                  <% for (let i=Math.max(1, pagination.currentPage - 2); i <=Math.min(pagination.totalPages,
+                    pagination.currentPage + 2); i++) { %>
+                    <li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
+                      <a class="page-link" href="?page=<%= i %>">
+                        <%= i %>
+                      </a>
+                    </li>
+                    <% } %>
+
+                      <li class="page-item <%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>">
+                        <a class="page-link" href="?page=<%= pagination.currentPage + 1 %>">
+                          <i class="fas fa-chevron-right"></i>
+                        </a>
+                      </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+          <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Select all checkbox
+  document.getElementById('selectAll')?.addEventListener('change', function () {
+    const checkboxes = document.querySelectorAll('.email-checkbox');
+    checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+  });
+
+  // Toggle important
+  document.querySelectorAll('.toggle-important').forEach(btn => {
+    btn.addEventListener('click', async function () {
+      const emailId = this.dataset.emailId;
+      try {
+        const response = await fetch(`/emails/${emailId}/important`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          // Toggle icon
+          const icon = this.querySelector('i');
+          if (result.isImportant) {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            this.title = 'Bỏ đánh dấu quan trọng';
+          } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            this.title = 'Đánh dấu quan trọng';
+          }
+        }
+      } catch (error) {
+        console.error('Error toggling important:', error);
+      }
+    });
+  });
+
+  // Delete email
+  document.querySelectorAll('.delete-email').forEach(btn => {
+    btn.addEventListener('click', function () {
+      if (confirm('Bạn có chắc chắn muốn xóa email này?')) {
+        const emailId = this.dataset.emailId;
+
+        try {
+          fetch(`/emailsSystem/${emailId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }).then(res => res.json()).then(result => {
+            if (result.success) {
+              // Remove email row from DOM
+              const emailRow = document.querySelector(`.email-row[data-email-id="${emailId}"]`);
+              if (emailRow) {
+                emailRow.remove();
+              }
+
+              // Update total email count (use ID to select reliably)
+              const totalElement = document.getElementById('totalEmailsCount');
+              // safe parse: remove non-digits, fallback to 0
+              if (totalElement) {
+                const digits = totalElement.textContent.replace(/\D/g, '');
+                let currentTotal = parseInt(digits, 10);
+                if (Number.isNaN(currentTotal)) currentTotal = 0;
+                currentTotal = Math.max(0, currentTotal - 1);
+                totalElement.textContent = currentTotal;
+              }
+
+              // Update the footer summary: replace the last number in the text (the total)
+              const footerSummary = document.getElementById('paginationSummary');
+              if (footerSummary) {
+                // replace the last occurrence of a number with currentTotal
+                const newTotal = totalElement ? totalElement.textContent : ((footerSummary.textContent.match(/\d+/g) || []).pop() || '0');
+                footerSummary.textContent = footerSummary.textContent.replace(/(\d+)(?!.*\d)/, newTotal);
+              }
+
+              // Show success toast
+              const toastEl = document.getElementById('deleteToast');
+              const toast = new bootstrap.Toast(toastEl, {
+                autohide: true,
+                delay: 3000
+              });
+              toast.show();
+            } else {
+              alert('Lỗi khi xóa email!');
+            }
+          }).catch(error => {
+            console.error('Error deleting email:', error);
+            alert('Đã xảy ra lỗi khi xóa email!');
+          });
+        } catch (error) {
+          console.error('Error deleting email:', error);
+          alert('Đã xảy ra lỗi khi xóa email!');
+        }
+      }
+    });
+  });
+</script>

@@ -1,0 +1,334 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-4 pb-2 mb-4 border-bottom">
+  <h1 class="h2">
+    <i class="fas fa-chart-line me-2"></i>
+    Dashboard
+  </h1>
+  <!-- <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group me-2">
+      <button type="button" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-calendar-week"></i> Tuần này
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-calendar-alt"></i> Tháng này
+      </button>
+    </div>
+  </div> -->
+
+  <!-- Toast Notification -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="deleteToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+      aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="fas fa-check-circle me-2"></i>
+          <span id="toastMessage">Đã xóa email thành công!</span>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+          aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+  <!-- Total Emails -->
+  <div class="col-md-3">
+    <div class="card stat-card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.75rem; font-weight: 600;">
+              Tổng Email
+            </h6>
+            <h2 class="mb-0 fw-bold">
+              <%= stats.total %>
+            </h2>
+            <small class="text-muted">
+              <i class="fas fa-arrow-up text-success"></i> Email đã nhận
+            </small>
+          </div>
+          <div class="stat-icon bg-gradient-primary">
+            <i class="fas fa-envelope"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unread Emails -->
+  <div class="col-md-3">
+    <div class="card stat-card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.75rem; font-weight: 600;">
+              Chưa đọc
+            </h6>
+            <h2 class="mb-0 fw-bold">
+              <%= stats.unread %>
+            </h2>
+            <small class="text-muted">
+              <% if (stats.total> 0) { %>
+                <%= Math.round((stats.unread / stats.total) * 100) %>% tổng số email
+                  <% } else { %>
+                    0% tổng số email
+                    <% } %>
+            </small>
+          </div>
+          <div class="stat-icon bg-gradient-warning">
+            <i class="fas fa-envelope-open"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Read Emails -->
+  <div class="col-md-3">
+    <div class="card stat-card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.75rem; font-weight: 600;">
+              Đã đọc
+            </h6>
+            <h2 class="mb-0 fw-bold">
+              <%= stats.read %>
+            </h2>
+            <small class="text-muted">
+              <% if (stats.total> 0) { %>
+                <%= Math.round((stats.read / stats.total) * 100) %>% tổng số email
+                  <% } else { %>
+                    0% tổng số email
+                    <% } %>
+            </small>
+          </div>
+          <div class="stat-icon bg-gradient-success">
+            <i class="fas fa-check-circle"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Important Emails -->
+  <div class="col-md-3">
+    <div class="card stat-card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-muted mb-2 text-uppercase" style="font-size: 0.75rem; font-weight: 600;">
+              Quan trọng
+            </h6>
+            <h2 class="mb-0 fw-bold">
+              <%= stats.important %>
+            </h2>
+            <small class="text-muted">
+              Được đánh dấu sao
+            </small>
+          </div>
+          <div class="stat-icon bg-gradient-info">
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Emails -->
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white border-0 py-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-bold">
+        <i class="fas fa-envelope-open-text me-2 text-primary"></i>
+        Email gần đây
+      </h5>
+      <a href="/emails?viewAll=stats" class="btn btn-sm btn-outline-primary">
+        Xem tất cả <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="bg-light">
+          <tr>
+            <!-- <th class="border-0 ps-4" style="width: 40px;">
+              <input type="checkbox" class="form-check-input">
+            </th> -->
+            <th class="border-0" style="width: 50px;"></th>
+            <th class="border-0">Người gửi</th>
+            <th class="border-0">Tiêu đề</th>
+            <th class="border-0">Danh mục</th>
+            <th class="border-0">Thời gian</th>
+            <th class="border-0 text-end pe-4">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (recentEmails && recentEmails.length> 0) { %>
+            <% recentEmails.forEach(recipient=> {
+              const email = recipient.email || recipient;
+              %>
+              <tr class="email-row <%= email.is_read ? '' : 'table-primary bg-opacity-10' %>"
+                data-email-id="<%= email.id %>">
+                <!-- <td class="ps-4 align-middle">
+                  <input type="checkbox" class="form-check-input">
+                </td> -->
+                <td class="align-middle">
+                  <!-- <% if (!email.is_read) { %>
+                    <i class="fas fa-circle text-primary" style="font-size: 8px;"></i>
+                    <% } %> -->
+                </td>
+                <td class="align-middle">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-circle me-2">
+                      <%= email.user?.username ? email.user?.username.charAt(0).toUpperCase() : 'U' %>
+                    </div>
+                    <div>
+                      <div class="<%= !recipient.isRead ? 'fw-bold' : '' %>">
+                        <%= email.user?.username || 'Unknown' %>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="align-middle">
+                  <div class="text-truncate" style="max-width: 300px;">
+                    <a href="/emails/<%= email.id %>"
+                      class="text-decoration-none text-dark <%= !recipient.isRead ? 'fw-bold' : '' %>">
+                      <%= email.title || 'No Subject' %>
+                    </a>
+                  </div>
+                </td>
+                <td class="align-middle">
+                  <% if (email.labels && email.labels.length > 0) { %>
+                    <% email.labels.forEach((label, idx) => { %>
+                      <span class="badge bg-<%= ['primary', 'success', 'info', 'warning', 'danger'][label.id % 5] %> me-1 mb-1">
+                        <i class="fas fa-tag me-1"></i>
+                        <%= label.name %>
+                      </span>
+                    <% }); %>
+                  <% } else { %>
+                    <span class="badge bg-secondary">
+                      <i class="fas fa-question me-1"></i>
+                      Chưa phân loại
+                    </span>
+                  <% } %>
+                </td>
+                <td class="align-middle">
+                  <small class="text-muted">
+                    <%= recipient.sendTime ? new Date(recipient.sendTime).toLocaleDateString('vi-VN', { day: '2-digit' ,
+                      month: '2-digit' , year: 'numeric' , hour: '2-digit' , minute: '2-digit' }) : '' %>
+                  </small>
+                </td>
+                <td class="align-middle text-end pe-4">
+                  <div class="btn-group" role="group">
+                    <a href="/emails/<%= email.id %>" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <button class="btn btn-sm btn-outline-danger delete-email" title="Xóa"
+                      data-email-id="<%= email.id %>">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="7" class="text-center py-5">
+                      <i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
+                      <p class="text-muted mb-0">Chưa có email nào</p>
+                    </td>
+                  </tr>
+                  <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Apply custom background colors to badges with data-bg attribute
+  document.querySelectorAll('.badge[data-bg]').forEach(function (el) {
+    var color = el.getAttribute('data-bg');
+    if (color) el.style.backgroundColor = color;
+  });
+
+  document.querySelectorAll('.delete-email').forEach(btn => {
+    btn.addEventListener('click', function () {
+      if (confirm('Bạn có chắc chắn muốn xóa email này?')) {
+        const emailId = this.dataset.emailId;
+        try {
+          fetch(`/emails/${emailId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }).then(res => res.json()).then(result => {
+            if (result.success) {
+              // Remove email row from DOM
+              const emailRow = document.querySelector(`.email-row[data-email-id="${emailId}"]`);
+              if (emailRow) {
+                emailRow.remove();
+              }
+
+              // Show success toast
+              const toastEl = document.getElementById('deleteToast');
+              const toast = new bootstrap.Toast(toastEl, {
+                autohide: true,
+                delay: 3000
+              });
+              toast.show();
+            }
+            else {
+              // Show error toast
+              const toastEl = document.getElementById('deleteToast');
+              toastEl.classList.remove('bg-success');
+              toastEl.classList.add('bg-danger');
+              document.getElementById('toastMessage').innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Lỗi khi xóa email!';
+              const toast = new bootstrap.Toast(toastEl, {
+                autohide: true,
+                delay: 5000
+              });
+              toast.show();
+
+              // Reset toast color after hiding
+              setTimeout(() => {
+                toastEl.classList.remove('bg-danger');
+                toastEl.classList.add('bg-success');
+                document.getElementById('toastMessage').innerHTML = 'Đã xóa email thành công!';
+              }, 5500);
+            }
+          }).catch(error => {
+            console.error('Error deleting email:', error);
+
+            // Show error toast
+            const toastEl = document.getElementById('deleteToast');
+            toastEl.classList.remove('bg-success');
+            toastEl.classList.add('bg-danger');
+            document.getElementById('toastMessage').innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Đã xảy ra lỗi khi xóa email!';
+            const toast = new bootstrap.Toast(toastEl, {
+              autohide: true,
+              delay: 5000
+            });
+            toast.show();
+
+            // Reset toast color after hiding
+            setTimeout(() => {
+              toastEl.classList.remove('bg-danger');
+              toastEl.classList.add('bg-success');
+              document.getElementById('toastMessage').innerHTML = 'Đã xóa email thành công!';
+            }, 5500);
+          });
+        }
+        catch (error) {
+          console.error('Error deleting email:', error);
+          alert('Đã xảy ra lỗi khi xóa email');
+        }
+      }
+    });
+  });
+
+</script>

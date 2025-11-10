@@ -1,0 +1,258 @@
+
+<link rel="stylesheet" href="/css/retrain.css">
+
+<div class="container-fluid mt-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="fw-bold mb-1">
+            <i class="fas fa-sync-alt me-2 text-primary"></i>
+            Retrain Model - Step 1
+          </h2>
+          <p class="text-muted mb-0">
+            Chọn mẫu dữ liệu huấn luyện
+          </p>
+        </div>
+        <div>
+          <a href="/dashboard" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Quay lại Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="text-center flex-fill">
+              <div class="step-circle active">1</div>
+              <p class="mb-0 mt-2 fw-bold text-primary">Chọn mẫu</p>
+            </div>
+            <div class="step-line"></div>
+            <div class="text-center flex-fill">
+              <div class="step-circle">2</div>
+              <p class="mb-0 mt-2 text-muted">Cấu hình</p>
+            </div>
+            <div class="step-line"></div>
+            <div class="text-center flex-fill">
+              <div class="step-circle">3</div>
+              <p class="mb-0 mt-2 text-muted">Kết quả</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chọn Model -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-12">
+              <h5 class="mb-3">
+                <i class="fas fa-brain me-2"></i>
+                Bước 1: Chọn Model để Retrain
+              </h5>
+              <p class="text-muted">
+                Chọn model đã có sẵn để retrain. Datasets đã sử dụng cho model này sẽ được tự động chọn.
+              </p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Chọn Model <span class="text-danger">*</span></label>
+              <select class="form-select" id="modelSelect" onchange="onModelSelected()">
+                <option value="">-- Chọn model --</option>
+              </select>
+              <div class="form-text">Chọn model bạn muốn retrain</div>
+            </div>
+          </div>
+
+          <!-- Model Info -->
+          <div id="modelInfo" class="row mt-4" style="display: none;">
+            <div class="col-12">
+              <div class="alert alert-info">
+                <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Thông tin Model</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Version:</strong> <span id="modelVersion"></span></p>
+                    <p class="mb-1"><strong>Accuracy:</strong> <span id="modelAccuracy"></span>%</p>
+                    <p class="mb-1"><strong>Precision:</strong> <span id="modelPrecision"></span>%</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Recall:</strong> <span id="modelRecall"></span>%</p>
+                    <p class="mb-1"><strong>F1-Score:</strong> <span id="modelF1Score"></span>%</p>
+                    <p class="mb-1"><strong>Created:</strong> <span id="modelCreated"></span></p>
+                  </div>
+                </div>
+                <hr>
+                <p class="mb-0"><strong>Dataset hiện tại:</strong> <span id="currentDatasetInfo"></span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chọn Samples -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-12">
+              <h5 class="mb-3">
+                <i class="fas fa-database me-2"></i>
+                Bước 2: Chọn Datasets để Retrain
+              </h5>
+              <p class="text-muted">
+                Datasets của model đã được chọn sẵn. Bạn có thể thêm thêm email để mở rộng dataset (tối thiểu 10 email).
+              </p>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="fas fa-search"></i>
+                </span>
+                <input type="text" class="form-control" id="searchSamples" 
+                       placeholder="Tìm kiếm mẫu...">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select class="form-select" id="labelFilter">
+                <option value="all">Tất cả nhãn</option>
+              </select>
+            </div>
+            <div class="col-md-5 text-end">
+              <button class="btn btn-outline-primary" onclick="selectAllSamples()">
+                <i class="fas fa-check-double me-1"></i>
+                Chọn tất cả
+              </button>
+              <button class="btn btn-outline-secondary" onclick="deselectAllSamples()">
+                <i class="fas fa-times me-1"></i>
+                Bỏ chọn tất cả
+              </button>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-12">
+              <div class="alert alert-info d-flex align-items-center">
+                <i class="fas fa-info-circle me-2"></i>
+                <span>Đã chọn: <strong id="selectedCount">0</strong> mẫu</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="samplesLoading" class="text-center py-5" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Đang tải dữ liệu...</p>
+          </div>
+
+          <div class="row">
+            <div class="col-12">
+              <div class="table-responsive">
+                <table class="table table-hover" id="samplesTable">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="width: 50px;">
+                        <input type="checkbox" class="form-check-input" id="selectAllCheckbox">
+                      </th>
+                      <th style="width: 80px;">ID</th>
+                      <th>Nội dung</th>
+                      <th style="width: 150px;">Nhãn</th>
+                    </tr>
+                  </thead>
+                  <tbody id="samplesTableBody">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-12">
+              <nav aria-label="Sample pagination">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="text-muted">
+                    <span id="pageInfo">Hiển thị 0 - 0 trên 0 mẫu</span>
+                  </div>
+                  
+                  <ul class="pagination mb-0" id="paginationControls">
+                  </ul>
+                  
+                  <div>
+                    <select class="form-select form-select-sm" id="itemsPerPage" style="width: auto;">
+                      <option value="10">10 / trang</option>
+                      <option value="20" selected>20 / trang</option>
+                      <option value="50">50 / trang</option>
+                      <option value="100">100 / trang</option>
+                    </select>
+                  </div>
+                </div>
+              </nav>
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-12 text-end">
+              <button class="btn btn-primary btn-lg" id="continueBtn" onclick="continueToConfig()" disabled>
+                Tiếp tục
+                <i class="fas fa-arrow-right ms-2"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+  <div id="toastContainer"></div>
+</div>
+
+
+<script src="/js/retrain-samples.js"></script>
+
+<style>
+.step-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #6c757d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.step-circle.active {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background-color: #e9ecef;
+  margin: 0 1rem;
+}
+</style>
+

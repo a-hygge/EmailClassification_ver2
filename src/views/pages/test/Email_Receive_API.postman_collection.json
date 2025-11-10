@@ -1,0 +1,170 @@
+{
+  "info": {
+    "name": "Email Receive API",
+    "description": "Collection for testing POST /api/emails/receive endpoint",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Valid Email - Bảo mật",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"from\": \"security@example.com\",\n  \"to\": \"user@example.com\",\n  \"subject\": \"Cảnh báo đăng nhập từ thiết bị mới\",\n  \"body\": \"Chúng tôi phát hiện đăng nhập từ thiết bị mới vào tài khoản của bạn. Nếu không phải bạn, vui lòng thay đổi mật khẩu ngay.\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/emails/receive",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "emails", "receive"]
+        }
+      }
+    },
+    {
+      "name": "Valid Email - Công việc",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"from\": \"manager@company.com\",\n  \"to\": \"employee@company.com\",\n  \"subject\": \"Họp team vào thứ 2\",\n  \"body\": \"Chúng ta sẽ có cuộc họp team vào 9h sáng thứ 2 tuần sau để thảo luận về dự án mới. Mọi người chuẩn bị báo cáo tiến độ nhé.\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/emails/receive",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "emails", "receive"]
+        }
+      }
+    },
+    {
+      "name": "Valid Email - Spam",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"from\": \"promo@spam.com\",\n  \"to\": \"victim@example.com\",\n  \"subject\": \"Bạn đã trúng giải 500 triệu\",\n  \"body\": \"Chúc mừng! Bạn đã trúng giải đặc biệt 500 triệu đồng. Nhấp vào đây để nhận thưởng ngay. Nhanh tay kẻo lỡ!\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/emails/receive",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "emails", "receive"]
+        }
+      }
+    },
+    {
+      "name": "Valid Email - Giao dịch",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"from\": \"bank@example.com\",\n  \"to\": \"customer@example.com\",\n  \"subject\": \"Xác nhận giao dịch chuyển khoản\",\n  \"body\": \"Giao dịch chuyển khoản 5.000.000đ đến tài khoản 123456789 đã thành công vào lúc 10:00 AM ngày 27/10/2025.\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/emails/receive",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "emails", "receive"]
+        }
+      }
+    },
+    {
+      "name": "Invalid - Missing Body",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"from\": \"test@example.com\",\n  \"to\": \"receiver@example.com\",\n  \"subject\": \"Test email\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/emails/receive",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "emails", "receive"]
+        }
+      }
+    },
+    {
+      "name": "Invalid - Bad Email Format",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"from\": \"invalid-email\",\n  \"to\": \"receiver@example.com\",\n  \"subject\": \"Test email\",\n  \"body\": \"This is a test email body\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/emails/receive",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "emails", "receive"]
+        }
+      }
+    },
+    {
+      "name": "Invalid - Empty Subject",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"from\": \"test@example.com\",\n  \"to\": \"receiver@example.com\",\n  \"subject\": \"   \",\n  \"body\": \"This is a test email body\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/emails/receive",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "emails", "receive"]
+        }
+      }
+    }
+  ]
+}
